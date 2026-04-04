@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GigGuard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #1a1208; --ink2: #3d2f1a; --ink3: #7a6550; --ink4: #b8a898;
+  --paper: #faf7f2; --paper2: #f3ede3; --paper3: #ece4d6; --cream: #fff9f0;
+  --orange: #e85d1a; --orange2: #f07540; --orange-bg: #fff1e8;
+  --green: #1a7a4a; --green-bg: #e8f5ee;
+  --red: #c0392b; --red-bg: #fdecea;
+  --amber: #c47d0a; --amber-bg: #fef8e8;
+  --blue: #1a4a8a; --blue-bg: #e8f0fc;
+  --border: #ddd5c5; --border2: #c9bfaf;
+}
+html { font-size: 16px; }
+body { font-family: 'Bricolage Grotesque', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* NAV */
+nav { position: sticky; top: 0; z-index: 100; background: var(--cream); border-bottom: 1.5px solid var(--border); padding: 0 28px; display: flex; align-items: center; height: 56px; }
+.logo { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 800; letter-spacing: -0.5px; color: var(--ink); margin-right: 32px; text-decoration: none; flex-shrink: 0; }
+.logo-shield { width: 30px; height: 30px; background: var(--orange); border-radius: 6px 6px 14px 14px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; }
+.nav-links { display: flex; align-items: stretch; flex: 1; gap: 0; height: 100%; }
+.nav-link { display: flex; align-items: center; padding: 0 18px; font-size: 13.5px; font-weight: 500; color: var(--ink3); border: none; background: none; cursor: pointer; border-bottom: 2.5px solid transparent; margin-bottom: -1.5px; transition: color 0.15s, border-color 0.15s; white-space: nowrap; font-family: 'Bricolage Grotesque', sans-serif; }
+.nav-link:hover { color: var(--ink); }
+.nav-link.active { color: var(--orange); border-bottom-color: var(--orange); font-weight: 600; }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.live-pill { display: flex; align-items: center; gap: 6px; background: var(--green-bg); border: 1px solid #b8ddc8; border-radius: 100px; padding: 4px 12px; font-size: 12px; font-weight: 600; color: var(--green); }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: livepulse 2.5s ease-in-out infinite; }
+@keyframes livepulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.85)} }
+
+/* SCREENS */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ONBOARDING */
+#screen-onboarding { min-height: calc(100vh - 56px); }
+#screen-onboarding.active { display: grid; grid-template-columns: 1fr 1fr; }
+.ob-left { background: var(--orange); padding: 56px 52px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
+.ob-left::after { content:''; position:absolute; bottom:-80px; right:-80px; width:300px; height:300px; border-radius:50%; background:rgba(255,255,255,0.07); pointer-events:none; }
+.ob-left::before { content:''; position:absolute; top:-40px; left:-40px; width:160px; height:160px; border-radius:50%; background:rgba(0,0,0,0.06); pointer-events:none; }
+.ob-tagline { font-family:'Instrument Serif',serif; font-size:13px; font-style:italic; color:rgba(255,255,255,0.7); margin-bottom:18px; }
+.ob-headline { font-size:clamp(30px,3vw,46px); font-weight:800; color:white; line-height:1.1; letter-spacing:-1.5px; margin-bottom:20px; }
+.ob-headline em { font-family:'Instrument Serif',serif; font-style:italic; font-weight:400; font-size:110%; }
+.ob-desc { font-size:14.5px; color:rgba(255,255,255,0.82); line-height:1.7; max-width:360px; }
+.ob-story { background:rgba(0,0,0,0.12); border-radius:14px; padding:20px 22px; margin-top:36px; position:relative; z-index:1; }
+.ob-story-quote { font-family:'Instrument Serif',serif; font-size:16px; font-style:italic; color:rgba(255,255,255,0.9); line-height:1.6; margin-bottom:10px; }
+.ob-story-attr { font-size:11.5px; color:rgba(255,255,255,0.55); font-weight:500; }
+.ob-stats { display:flex; gap:28px; position:relative; z-index:1; }
+.ob-stat-num { font-size:26px; font-weight:800; color:white; letter-spacing:-1px; }
+.ob-stat-label { font-size:11.5px; color:rgba(255,255,255,0.6); margin-top:2px; }
+.ob-right { background: var(--cream); padding: 48px 52px; overflow-y: auto; }
+.step-indicator { display:flex; align-items:center; gap:8px; margin-bottom:32px; }
+.step-pip { width:28px; height:4px; border-radius:2px; background:var(--paper3); transition:background 0.3s; }
+.step-pip.active { background:var(--orange); }
+.step-label { font-size:11.5px; color:var(--ink4); font-weight:600; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px; }
+.step-title { font-size:25px; font-weight:800; letter-spacing:-0.8px; line-height:1.2; margin-bottom:6px; }
+.step-sub { font-size:14px; color:var(--ink3); margin-bottom:28px; line-height:1.5; }
+.wizard-step { display:none; }
+.wizard-step.active { display:block; animation:stepIn 0.25s ease; }
+@keyframes stepIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+.field-block { margin-bottom:20px; }
+.field-label { display:block; font-size:13px; font-weight:600; color:var(--ink2); margin-bottom:8px; }
+.field-input { width:100%; padding:13px 16px; font-family:'Bricolage Grotesque',sans-serif; font-size:15px; font-weight:500; color:var(--ink); background:white; border:1.5px solid var(--border); border-radius:10px; outline:none; transition:border-color 0.2s; }
+.field-input:focus { border-color:var(--orange); }
+.field-input::placeholder { color:var(--ink4); font-weight:400; }
+.otp-row { display:flex; gap:10px; }
+.otp-box { width:52px; height:56px; text-align:center; font-size:22px; font-weight:700; font-family:'DM Mono',monospace; color:var(--ink); background:white; border:1.5px solid var(--border); border-radius:10px; outline:none; transition:border-color 0.2s; }
+.otp-box:focus { border-color:var(--orange); }
+.otp-hint { font-size:13px; color:var(--ink3); margin-top:10px; }
+.otp-hint span { color:var(--orange); cursor:pointer; font-weight:600; }
+.platform-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.platform-btn { padding:16px 14px; background:white; border:1.5px solid var(--border); border-radius:12px; cursor:pointer; transition:all 0.18s; display:flex; align-items:center; gap:12px; text-align:left; }
+.platform-btn:hover { border-color:var(--orange2); background:var(--orange-bg); }
+.platform-btn.selected { border-color:var(--orange); background:var(--orange-bg); }
+.platform-btn.selected .pb-check { opacity:1; }
+.pb-logo { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.pb-name { font-size:14px; font-weight:700; color:var(--ink); }
+.pb-type { font-size:12px; color:var(--ink3); margin-top:1px; }
+.pb-check { margin-left:auto; color:var(--orange); font-size:16px; opacity:0; transition:opacity 0.2s; }
+.plan-grid { display:flex; flex-direction:column; gap:10px; }
+.plan-row { display:flex; align-items:center; gap:12px; padding:16px 18px; background:white; border:1.5px solid var(--border); border-radius:12px; cursor:pointer; transition:all 0.18s; position:relative; }
+.plan-row:hover { border-color:var(--orange2); }
+.plan-row.selected { border-color:var(--orange); background:var(--orange-bg); }
+.plan-row.rec-tag::before { content:'AI PICK'; position:absolute; top:-1px; right:16px; background:var(--orange); color:white; font-size:9px; font-weight:800; letter-spacing:0.8px; padding:2px 8px; border-radius:0 0 6px 6px; }
+.plan-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+.plan-info { flex:1; }
+.plan-name { font-size:14px; font-weight:700; }
+.plan-triggers { font-size:12px; color:var(--ink3); margin-top:2px; }
+.plan-price-col { text-align:right; }
+.plan-price { font-size:18px; font-weight:800; color:var(--ink); letter-spacing:-0.5px; }
+.plan-price span { font-size:12px; font-weight:400; color:var(--ink3); }
+.plan-max { font-size:11px; color:var(--ink3); margin-top:2px; }
+.plan-radio { width:18px; height:18px; border-radius:50%; border:2px solid var(--border2); flex-shrink:0; transition:all 0.15s; position:relative; }
+.plan-row.selected .plan-radio { border-color:var(--orange); background:var(--orange); }
+.plan-row.selected .plan-radio::after { content:''; position:absolute; inset:3px; background:white; border-radius:50%; }
+.coverage-box { background:var(--green-bg); border:1.5px solid #a8d8bc; border-radius:14px; padding:24px; margin-bottom:20px; }
+.coverage-top { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+.check-circle { width:44px; height:44px; border-radius:50%; background:var(--green); color:white; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.coverage-title { font-size:18px; font-weight:800; color:var(--green); }
+.coverage-sub { font-size:13px; color:#2a7a52; margin-top:2px; }
+.cov-rows { display:flex; flex-direction:column; gap:10px; }
+.cov-row { display:flex; justify-content:space-between; align-items:center; font-size:14px; }
+.cov-key { color:var(--ink3); }
+.cov-val { font-weight:700; color:var(--ink); }
+.cov-div { height:1px; background:#b8d8c8; margin:2px 0; }
+.btn { display:flex; align-items:center; justify-content:center; gap:8px; padding:14px 24px; border:none; border-radius:10px; font-family:'Bricolage Grotesque',sans-serif; font-size:14.5px; font-weight:700; cursor:pointer; transition:all 0.18s; text-decoration:none; }
+.btn-orange { background:var(--orange); color:white; }
+.btn-orange:hover { background:#d44e10; transform:translateY(-1px); box-shadow:0 4px 16px rgba(232,93,26,0.3); }
+.btn-ghost { background:white; color:var(--ink2); border:1.5px solid var(--border); }
+.btn-ghost:hover { border-color:var(--border2); background:var(--paper2); }
+.btn-full { width:100%; }
+.btn-row { display:flex; gap:10px; margin-top:22px; }
+.btn-row .btn { flex:1; }
+
+/* DASHBOARD */
+.dash-wrap { padding:28px 32px; max-width:1200px; margin:0 auto; }
+.dash-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:26px; }
+.dash-greeting { font-size:21px; font-weight:800; letter-spacing:-0.5px; }
+.dash-greeting span { color:var(--orange); }
+.dash-greeting-sub { font-size:13.5px; color:var(--ink3); margin-top:3px; }
+.dash-premium-box { background:var(--ink); color:white; border-radius:12px; padding:14px 20px; text-align:right; }
+.dash-prem-label { font-size:11px; opacity:0.5; text-transform:uppercase; letter-spacing:0.5px; }
+.dash-prem-val { font-size:22px; font-weight:800; letter-spacing:-0.5px; margin-top:2px; }
+.dash-prem-sub { font-size:11px; opacity:0.5; margin-top:2px; }
+.dash-grid-top { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:16px; }
+.dash-grid-bot { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; }
+.card { background:white; border:1.5px solid var(--border); border-radius:14px; padding:20px 22px; }
+.card-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--ink4); margin-bottom:10px; }
+.card-val { font-size:28px; font-weight:800; letter-spacing:-1px; line-height:1; }
+.card-val.orange { color:var(--orange); }
+.card-val.green { color:var(--green); }
+.card-sub { font-size:13px; color:var(--ink3); margin-top:6px; line-height:1.4; }
+.card-tag { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:100px; font-size:11px; font-weight:700; margin-top:10px; }
+.tag-green { background:var(--green-bg); color:var(--green); }
+.tag-orange { background:var(--orange-bg); color:var(--orange); }
+.tag-amber { background:var(--amber-bg); color:var(--amber); }
+.zone-card { background:white; border:1.5px solid var(--border); border-radius:14px; padding:20px 22px; grid-column:span 2; }
+.zone-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; }
+.zone-card-name { font-size:17px; font-weight:800; letter-spacing:-0.5px; }
+.zone-card-id { font-size:12px; color:var(--ink4); font-family:'DM Mono',monospace; margin-top:4px; }
+.risk-badge { padding:6px 14px; border-radius:8px; font-size:13px; font-weight:700; display:flex; align-items:center; gap:7px; }
+.risk-badge.low { background:var(--green-bg); color:var(--green); border:1px solid #b8ddc8; }
+.risk-badge.med { background:var(--amber-bg); color:var(--amber); border:1px solid #e8d080; }
+.risk-badge.high { background:var(--red-bg); color:var(--red); border:1px solid #f0b0a8; }
+.risk-dot { width:8px; height:8px; border-radius:50%; background:currentColor; }
+.risk-dot.blink { animation:blink 1.5s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.triggers-strip { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+.trig-chip { display:flex; align-items:center; gap:7px; background:var(--paper2); border:1px solid var(--border); border-radius:8px; padding:7px 13px; font-size:13px; font-weight:500; color:var(--ink2); }
+.trig-chip.alert { background:var(--red-bg); border-color:#f0b0a8; color:var(--red); font-weight:700; }
+.trig-chip.warn { background:var(--amber-bg); border-color:#e8d080; color:var(--amber); }
+.trig-val { font-family:'DM Mono',monospace; font-size:12px; opacity:0.75; }
+.drs-row { display:flex; align-items:center; gap:16px; }
+.drs-label-block { flex-shrink:0; }
+.drs-label-top { font-size:11px; font-weight:700; color:var(--ink4); text-transform:uppercase; letter-spacing:0.5px; }
+.drs-num { font-size:34px; font-weight:800; letter-spacing:-1.5px; font-family:'DM Mono',monospace; }
+.drs-num.safe { color:var(--green); }
+.drs-num.warn { color:var(--amber); }
+.drs-num.danger { color:var(--red); }
+.drs-bar-col { flex:1; }
+.drs-bar-track { height:8px; background:var(--paper3); border-radius:100px; overflow:hidden; border:1px solid var(--border); }
+.drs-bar-fill { height:100%; border-radius:100px; transition:width 1.2s cubic-bezier(0.4,0,0.2,1); }
+.drs-bar-fill.safe { background:var(--green); }
+.drs-bar-fill.warn { background:var(--amber); }
+.drs-bar-fill.danger { background:var(--red); }
+.drs-ticks-row { display:flex; justify-content:space-between; margin-top:5px; }
+.drs-tick { font-size:10px; color:var(--ink4); font-family:'DM Mono',monospace; }
+.history-card { background:white; border:1.5px solid var(--border); border-radius:14px; padding:20px 22px; }
+.history-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.history-title { font-size:15px; font-weight:800; }
+.history-total { font-size:14px; font-weight:700; color:var(--green); }
+.payout-row { display:flex; align-items:center; gap:13px; padding:13px 0; border-bottom:1px solid var(--paper3); }
+.payout-row:last-child { border:none; }
+.payout-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.payout-icon.rain { background:var(--blue-bg); }
+.payout-icon.aqi { background:#f0e8f8; }
+.payout-icon.heat { background:var(--orange-bg); }
+.payout-icon.lock { background:var(--amber-bg); }
+.payout-text { flex:1; }
+.payout-event-name { font-size:14px; font-weight:600; color:var(--ink); }
+.payout-date { font-size:12px; color:var(--ink4); margin-top:2px; }
+.payout-amount-col { text-align:right; }
+.payout-amt { font-size:15px; font-weight:800; color:var(--green); }
+.payout-time { font-size:11px; color:var(--ink4); margin-top:2px; }
+.forecast-card { background:white; border:1.5px solid var(--border); border-radius:14px; padding:20px 22px; }
+.forecast-bars { display:flex; gap:5px; align-items:flex-end; height:80px; margin:14px 0 10px; }
+.f-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; }
+.f-bar { width:100%; border-radius:4px 4px 0 0; }
+.f-bar.safe { background:var(--green-bg); border:1px solid #b8ddc8; }
+.f-bar.warn { background:var(--amber-bg); border:1px solid #e8d080; }
+.f-bar.danger { background:var(--red-bg); border:1px solid #f0b0a8; }
+.f-day { font-size:10px; color:var(--ink4); font-weight:600; }
+.forecast-note { font-size:12px; color:var(--amber); font-weight:600; }
+
+/* SIMULATE */
+.sim-wrap { padding:32px; max-width:1100px; margin:0 auto; }
+.page-eyebrow { display:inline-block; background:var(--paper2); border:1px solid var(--border); border-radius:8px; padding:4px 12px; font-size:11px; font-weight:700; color:var(--ink3); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
+.page-h2 { font-size:25px; font-weight:800; letter-spacing:-0.8px; }
+.page-sub { font-size:14px; color:var(--ink3); margin-top:5px; margin-bottom:24px; }
+.sim-layout { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.sim-card { background:white; border:1.5px solid var(--border); border-radius:14px; padding:22px; }
+.sim-card-title { font-size:15px; font-weight:800; letter-spacing:-0.3px; margin-bottom:4px; }
+.sim-card-sub { font-size:13px; color:var(--ink3); margin-bottom:20px; }
+.slider-block { margin-bottom:16px; }
+.slider-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; }
+.slider-name { font-size:13px; font-weight:600; color:var(--ink2); }
+.slider-num { font-family:'DM Mono',monospace; font-size:13px; font-weight:500; background:var(--paper2); border:1px solid var(--border); padding:2px 9px; border-radius:6px; color:var(--ink); min-width:60px; text-align:center; }
+input[type=range] { width:100%; height:5px; cursor:pointer; -webkit-appearance:none; appearance:none; background:var(--paper3); border-radius:100px; outline:none; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--orange); border:2px solid white; box-shadow:0 1px 4px rgba(0,0,0,0.15); cursor:pointer; }
+.drs-result { border-top:1.5px solid var(--paper3); margin-top:20px; padding-top:20px; text-align:center; }
+.drs-result-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.7px; color:var(--ink4); margin-bottom:6px; }
+.drs-result-num { font-size:76px; font-weight:800; letter-spacing:-4px; line-height:1; font-family:'DM Mono',monospace; transition:color 0.4s; }
+.drs-result-status { display:inline-flex; align-items:center; gap:8px; padding:8px 20px; border-radius:10px; font-size:14px; font-weight:700; margin-top:12px; transition:all 0.3s; }
+.trigger-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.trig-fire-btn { padding:17px 12px; background:var(--paper2); border:1.5px solid var(--border); border-radius:12px; cursor:pointer; transition:all 0.18s; text-align:center; font-family:'Bricolage Grotesque',sans-serif; }
+.trig-fire-btn:hover { border-color:var(--orange); background:var(--orange-bg); transform:scale(1.02); }
+.trig-fire-btn:active { transform:scale(0.98); }
+.trig-fire-icon { font-size:28px; margin-bottom:7px; }
+.trig-fire-name { font-size:13px; font-weight:700; color:var(--ink); }
+.trig-fire-cond { font-size:11px; color:var(--ink3); margin-top:3px; }
+.wa-preview { background:#e5ddd5; border-radius:12px; overflow:hidden; border:1.5px solid var(--border); }
+.wa-header { background:#075e54; padding:11px 15px; display:flex; align-items:center; gap:10px; }
+.wa-avatar { width:32px; height:32px; border-radius:50%; background:#128c7e; color:white; display:flex; align-items:center; justify-content:center; font-size:15px; }
+.wa-name { font-size:14px; font-weight:700; color:white; }
+.wa-online { font-size:11px; color:rgba(255,255,255,0.7); }
+.wa-body { padding:14px; min-height:110px; }
+.wa-bubble { background:white; border-radius:0 12px 12px 12px; padding:11px 13px; max-width:88%; font-size:13.5px; line-height:1.55; box-shadow:0 1px 3px rgba(0,0,0,0.1); color:var(--ink); }
+.wa-bubble-idle { color:var(--ink4); font-style:italic; }
+.wa-tick { text-align:right; font-size:10px; color:var(--ink4); margin-top:4px; }
+.wa-amount { color:#128c7e; font-weight:800; font-size:16px; }
+.pipeline-card { background:white; border:1.5px solid var(--border); border-radius:14px; padding:22px; margin-top:18px; }
+.pipeline-row { display:flex; align-items:center; gap:0; margin-top:16px; overflow-x:auto; }
+.pipe-step { display:flex; flex-direction:column; align-items:center; gap:6px; min-width:96px; flex-shrink:0; }
+.pipe-icon { width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:19px; background:var(--paper2); border:1.5px solid var(--border); transition:all 0.35s; }
+.pipe-icon.running { background:var(--amber-bg); border-color:#e8d080; animation:wobble 0.6s ease infinite; }
+.pipe-icon.done { background:var(--green-bg); border-color:#b8ddc8; }
+@keyframes wobble { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-5deg)} 75%{transform:rotate(5deg)} }
+.pipe-name { font-size:11px; font-weight:700; color:var(--ink2); text-align:center; }
+.pipe-sub { font-size:10px; color:var(--ink4); text-align:center; }
+.pipe-arrow { color:var(--border2); font-size:18px; flex-shrink:0; padding:0 6px; margin-top:-18px; transition:color 0.3s; }
+.pipe-arrow.active { color:var(--orange); }
+.pipe-log { margin-top:12px; background:var(--ink); color:#a8c8a0; font-family:'DM Mono',monospace; font-size:12px; padding:11px 15px; border-radius:10px; line-height:1.6; }
+
+/* ADMIN */
+.admin-wrap { padding:32px; max-width:1200px; margin:0 auto; }
+.admin-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:22px; }
+.admin-stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:13px; margin-bottom:18px; }
+.a-stat { background:white; border:1.5px solid var(--border); border-radius:12px; padding:17px 20px; }
+.a-stat-label { font-size:11px; font-weight:700; color:var(--ink4); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; }
+.a-stat-val { font-size:25px; font-weight:800; letter-spacing:-0.8px; }
+.a-stat-change { font-size:12px; margin-top:6px; font-weight:600; }
+.up { color:var(--green); } .dn { color:var(--red); }
+.admin-main { display:grid; grid-template-columns:1.5fr 1fr; gap:16px; }
+.heatmap-wrap { background:white; border:1.5px solid var(--border); border-radius:14px; padding:20px; }
+.heatmap-grid { display:grid; grid-template-columns:repeat(14,1fr); gap:3px; margin-top:13px; }
+.hm-cell { aspect-ratio:1; border-radius:3px; cursor:pointer; transition:transform 0.15s; }
+.hm-cell:hover { transform:scale(1.3); z-index:2; position:relative; }
+.legend-row { display:flex; gap:16px; margin-top:12px; font-size:11px; color:var(--ink3); align-items:center; }
+.leg-item { display:flex; align-items:center; gap:5px; font-weight:600; }
+.leg-dot { width:10px; height:10px; border-radius:3px; }
+.fraud-wrap { background:white; border:1.5px solid var(--border); border-radius:14px; padding:20px; }
+.fraud-row { display:flex; align-items:flex-start; gap:11px; padding:13px 0; border-bottom:1px solid var(--paper3); }
+.fraud-row:last-child { border:none; }
+.fraud-num { width:32px; height:32px; border-radius:50%; background:var(--paper2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; color:var(--ink3); flex-shrink:0; }
+.fraud-info { flex:1; }
+.fraud-id { font-size:13px; font-weight:700; }
+.fraud-reason { font-size:11.5px; color:var(--ink3); margin-top:3px; line-height:1.4; }
+.fraud-score-badge { font-family:'DM Mono',monospace; font-size:13px; font-weight:700; padding:3px 10px; border-radius:6px; flex-shrink:0; }
+.fraud-score-badge.high { background:var(--red-bg); color:var(--red); }
+.fraud-score-badge.med { background:var(--amber-bg); color:var(--amber); }
+.fraud-btns { display:flex; gap:6px; flex-shrink:0; }
+.fraud-btn { width:30px; height:30px; border-radius:8px; border:1.5px solid var(--border); background:var(--paper2); cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+.fraud-btn.ok:hover { background:var(--green-bg); border-color:#b8ddc8; }
+.fraud-btn.no:hover { background:var(--red-bg); border-color:#f0b0a8; }
+
+/* TOAST */
+.toast { position:fixed; bottom:24px; right:24px; z-index:9999; background:var(--ink); color:white; border-radius:14px; padding:16px 20px; display:flex; align-items:center; gap:13px; min-width:290px; max-width:370px; box-shadow:0 8px 32px rgba(0,0,0,0.25); transform:translateY(110%); opacity:0; transition:all 0.4s cubic-bezier(0.34,1.4,0.64,1); }
+.toast.show { transform:none; opacity:1; }
+.toast-icon { font-size:24px; flex-shrink:0; }
+.toast-title { font-size:14px; font-weight:700; }
+.toast-sub { font-size:12px; opacity:0.6; margin-top:2px; }
+.toast-amount { font-size:20px; font-weight:800; color:#6ddc9a; margin-top:4px; }
+
+/* ===== PHASE 2: POLICY MANAGEMENT ===== */
+.pol-wrap { padding:28px 32px; max-width:1100px; margin:0 auto; }
+.pol-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:24px; }
+.pol-tabs { display:flex; gap:0; border:1.5px solid var(--border); border-radius:10px; overflow:hidden; background:white; margin-bottom:20px; }
+.pol-tab { flex:1; padding:11px 16px; font-family:'Bricolage Grotesque',sans-serif; font-size:13.5px; font-weight:600; color:var(--ink3); background:none; border:none; cursor:pointer; transition:all 0.18s; border-right:1px solid var(--border); }
+.pol-tab:last-child { border-right:none; }
+.pol-tab.active { background:var(--orange); color:white; }
+.pol-tab-content { display:none; }
+.pol-tab-content.active { display:block; animation:stepIn 0.2s ease; }
+
+/* Policy Card */
+.pol-card { background:white; border:1.5px solid var(--border); border-radius:16px; padding:24px; margin-bottom:14px; position:relative; overflow:hidden; }
+.pol-card::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--orange); }
+.pol-card.inactive::before { background:var(--border2); }
+.pol-card.flagged::before { background:var(--red); }
+.pol-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; }
+.pol-id-row { display:flex; align-items:center; gap:10px; }
+.pol-id { font-family:'DM Mono',monospace; font-size:12px; color:var(--ink4); background:var(--paper2); border:1px solid var(--border); padding:3px 9px; border-radius:6px; }
+.pol-name { font-size:18px; font-weight:800; letter-spacing:-0.4px; margin-top:4px; }
+.pol-status-badge { padding:5px 14px; border-radius:8px; font-size:12px; font-weight:700; }
+.pol-status-badge.active { background:var(--green-bg); color:var(--green); border:1px solid #b8ddc8; }
+.pol-status-badge.paused { background:var(--amber-bg); color:var(--amber); border:1px solid #e8d080; }
+.pol-status-badge.expired { background:var(--paper2); color:var(--ink4); border:1px solid var(--border); }
+.pol-meta-row { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; padding-top:16px; border-top:1px solid var(--paper3); }
+.pol-meta-item { }
+.pol-meta-label { font-size:11px; font-weight:700; color:var(--ink4); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+.pol-meta-val { font-size:14px; font-weight:700; color:var(--ink); }
+.pol-meta-sub { font-size:11px; color:var(--ink3); margin-top:1px; }
+.pol-actions { display:flex; gap:8px; margin-top:16px; }
+.pol-action-btn { padding:8px 16px; border-radius:8px; font-family:'Bricolage Grotesque',sans-serif; font-size:13px; font-weight:600; cursor:pointer; border:1.5px solid var(--border); background:var(--paper2); color:var(--ink2); transition:all 0.15s; }
+.pol-action-btn:hover { border-color:var(--orange); color:var(--orange); background:var(--orange-bg); }
+.pol-action-btn.danger:hover { border-color:var(--red); color:var(--red); background:var(--red-bg); }
+.pol-action-btn.primary { background:var(--orange); color:white; border-color:var(--orange); }
+.pol-action-btn.primary:hover { background:#d44e10; transform:translateY(-1px); }
+.pol-triggers-row { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+.pol-trig { display:flex; align-items:center; gap:5px; background:var(--paper2); border:1px solid var(--border); border-radius:6px; padding:4px 10px; font-size:12px; font-weight:500; color:var(--ink2); }
+.pol-trig.on { background:var(--green-bg); border-color:#b8ddc8; color:var(--green); }
+.pol-trig.off { opacity:0.5; text-decoration:line-through; }
+
+/* Policy Modify Modal */
+.modal-overlay { position:fixed; inset:0; background:rgba(26,18,8,0.5); z-index:500; display:none; align-items:center; justify-content:center; backdrop-filter:blur(3px); }
+.modal-overlay.open { display:flex; }
+.modal-box { background:var(--cream); border:1.5px solid var(--border); border-radius:18px; padding:28px 30px; width:520px; max-width:94vw; max-height:86vh; overflow-y:auto; box-shadow:0 24px 64px rgba(0,0,0,0.2); animation:modalIn 0.25s cubic-bezier(0.34,1.4,0.64,1); }
+@keyframes modalIn { from{opacity:0;transform:scale(0.93) translateY(10px)} to{opacity:1;transform:none} }
+.modal-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px; }
+.modal-title { font-size:20px; font-weight:800; letter-spacing:-0.5px; }
+.modal-close { width:32px; height:32px; border-radius:8px; background:var(--paper2); border:1px solid var(--border); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+.modal-close:hover { background:var(--red-bg); border-color:#f0b0a8; }
+.mod-section { margin-bottom:20px; }
+.mod-section-title { font-size:12px; font-weight:700; color:var(--ink4); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px; }
+.mod-toggle-row { display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid var(--paper3); }
+.mod-toggle-row:last-child { border:none; }
+.mod-toggle-label { font-size:14px; font-weight:600; color:var(--ink); }
+.mod-toggle-sub { font-size:12px; color:var(--ink3); margin-top:1px; }
+.toggle-sw { width:44px; height:24px; background:var(--paper3); border-radius:100px; position:relative; cursor:pointer; transition:background 0.2s; border:1px solid var(--border2); flex-shrink:0; }
+.toggle-sw.on { background:var(--green); border-color:var(--green); }
+.toggle-sw::after { content:''; position:absolute; width:18px; height:18px; background:white; border-radius:50%; top:2px; left:2px; transition:left 0.2s; box-shadow:0 1px 3px rgba(0,0,0,0.2); }
+.toggle-sw.on::after { left:22px; }
+.premium-preview-box { background:var(--orange-bg); border:1.5px solid var(--orange); border-radius:12px; padding:16px 18px; text-align:center; margin-top:16px; }
+.premium-preview-label { font-size:11px; font-weight:700; color:var(--orange); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+.premium-preview-num { font-size:36px; font-weight:800; letter-spacing:-1.5px; color:var(--orange); }
+.premium-preview-sub { font-size:12px; color:#c45015; margin-top:2px; }
+.renewal-timeline { display:flex; gap:0; margin-top:16px; }
+.rtl-step { flex:1; text-align:center; position:relative; }
+.rtl-step::before { content:''; position:absolute; top:12px; left:50%; right:-50%; height:2px; background:var(--paper3); z-index:0; }
+.rtl-step:last-child::before { display:none; }
+.rtl-dot { width:24px; height:24px; border-radius:50%; background:var(--paper3); border:2px solid var(--border2); margin:0 auto 6px; position:relative; z-index:1; display:flex; align-items:center; justify-content:center; font-size:10px; }
+.rtl-dot.done { background:var(--green); border-color:var(--green); color:white; }
+.rtl-dot.now { background:var(--orange); border-color:var(--orange); color:white; animation:livepulse 2s infinite; }
+.rtl-step-label { font-size:10px; font-weight:600; color:var(--ink3); }
+.rtl-step-date { font-size:10px; color:var(--ink4); margin-top:2px; font-family:'DM Mono',monospace; }
+
+/* ===== PHASE 2: PREMIUM CALCULATOR ===== */
+.prem-wrap { padding:28px 32px; max-width:1100px; margin:0 auto; }
+.prem-layout { display:grid; grid-template-columns:1fr 1.1fr; gap:20px; margin-top:20px; }
+.prem-input-card { background:white; border:1.5px solid var(--border); border-radius:16px; padding:24px; }
+.prem-output-card { background:white; border:1.5px solid var(--border); border-radius:16px; padding:24px; }
+.ai-badge { display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#1a1a2e,#16213e); color:white; border-radius:100px; padding:5px 14px; font-size:11.5px; font-weight:700; letter-spacing:0.3px; margin-bottom:16px; }
+.ai-badge-dot { width:7px; height:7px; border-radius:50%; background:#6ddc9a; animation:livepulse 2s infinite; }
+.calc-field { margin-bottom:16px; }
+.calc-label { font-size:13px; font-weight:600; color:var(--ink2); margin-bottom:8px; display:flex; justify-content:space-between; }
+.calc-select { width:100%; padding:11px 14px; font-family:'Bricolage Grotesque',sans-serif; font-size:14px; font-weight:500; color:var(--ink); background:white; border:1.5px solid var(--border); border-radius:10px; outline:none; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6550' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; transition:border-color 0.2s; }
+.calc-select:focus { border-color:var(--orange); }
+.calc-range-row { display:flex; align-items:center; gap:14px; }
+.calc-range-val { font-family:'DM Mono',monospace; font-size:14px; font-weight:600; background:var(--paper2); border:1px solid var(--border); padding:5px 12px; border-radius:8px; color:var(--ink); min-width:70px; text-align:center; flex-shrink:0; }
+.risk-factors-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px; }
+.risk-factor-chip { padding:10px 12px; border-radius:10px; border:1.5px solid var(--border); background:var(--paper2); cursor:pointer; transition:all 0.18s; }
+.risk-factor-chip.selected { border-color:var(--orange); background:var(--orange-bg); }
+.risk-factor-chip.selected .rfc-check { opacity:1; }
+.rfc-top { display:flex; justify-content:space-between; align-items:flex-start; }
+.rfc-icon { font-size:18px; }
+.rfc-check { font-size:13px; color:var(--orange); opacity:0; transition:opacity 0.15s; }
+.rfc-name { font-size:13px; font-weight:700; color:var(--ink); margin-top:5px; }
+.rfc-impact { font-size:11px; color:var(--ink3); margin-top:2px; }
+.premium-result { background:var(--ink); border-radius:14px; padding:22px; color:white; margin-bottom:18px; }
+.pr-label { font-size:11px; opacity:0.5; text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px; }
+.pr-amount { font-size:52px; font-weight:800; letter-spacing:-2px; line-height:1; }
+.pr-period { font-size:16px; opacity:0.5; font-weight:400; }
+.pr-breakdown { margin-top:16px; display:flex; flex-direction:column; gap:8px; }
+.pr-row { display:flex; justify-content:space-between; align-items:center; }
+.pr-row-label { font-size:13px; opacity:0.65; }
+.pr-row-val { font-size:13px; font-weight:700; font-family:'DM Mono',monospace; }
+.pr-row-val.green { color:#6ddc9a; }
+.pr-row-val.red { color:#f08080; }
+.pr-div { height:1px; background:rgba(255,255,255,0.1); margin:4px 0; }
+.coverage-breakdown { display:flex; flex-direction:column; gap:8px; margin-bottom:18px; }
+.cov-br-row { display:flex; justify-content:space-between; align-items:center; padding:11px 14px; background:var(--paper2); border:1px solid var(--border); border-radius:10px; }
+.cov-br-left { display:flex; align-items:center; gap:10px; }
+.cov-br-icon { font-size:18px; }
+.cov-br-name { font-size:13.5px; font-weight:600; }
+.cov-br-threshold { font-size:11px; color:var(--ink3); margin-top:1px; }
+.cov-br-payout { font-size:14px; font-weight:800; color:var(--green); }
+.ai-insight-box { background:linear-gradient(135deg,#f0f8f4,#e8f5ee); border:1.5px solid #b8ddc8; border-radius:12px; padding:16px; }
+.ai-insight-title { font-size:12px; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.ai-insight-text { font-size:13px; color:var(--ink2); line-height:1.6; }
+.comparison-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:12px; }
+.comparison-table th { text-align:left; font-size:11px; font-weight:700; color:var(--ink4); text-transform:uppercase; letter-spacing:0.5px; padding:8px 0; border-bottom:1.5px solid var(--border); }
+.comparison-table td { padding:10px 0; border-bottom:1px solid var(--paper3); color:var(--ink2); }
+.comparison-table tr:last-child td { border:none; }
+.comparison-table td:last-child, .comparison-table th:last-child { text-align:right; font-weight:700; color:var(--ink); }
+.highlighted-row td { font-weight:700; color:var(--orange) !important; }
+
+/* ===== PHASE 2: CLAIMS MANAGEMENT ===== */
+.claims-wrap { padding:28px 32px; max-width:1100px; margin:0 auto; }
+.claims-top-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+.c-stat { background:white; border:1.5px solid var(--border); border-radius:12px; padding:16px 18px; }
+.c-stat-label { font-size:11px; font-weight:700; color:var(--ink4); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px; }
+.c-stat-val { font-size:24px; font-weight:800; letter-spacing:-0.8px; }
+.c-stat-sub { font-size:12px; color:var(--ink3); margin-top:4px; }
+.claims-layout { display:grid; grid-template-columns:1fr 1.2fr; gap:18px; }
+.claims-list { background:white; border:1.5px solid var(--border); border-radius:14px; overflow:hidden; }
+.claims-list-header { padding:16px 20px; border-bottom:1px solid var(--paper3); display:flex; justify-content:space-between; align-items:center; }
+.claims-list-title { font-size:15px; font-weight:800; }
+.claim-filter-row { display:flex; gap:6px; }
+.claim-filter-btn { padding:5px 12px; border-radius:6px; font-family:'Bricolage Grotesque',sans-serif; font-size:12px; font-weight:600; cursor:pointer; border:1px solid var(--border); background:white; color:var(--ink3); transition:all 0.15s; }
+.claim-filter-btn.active { background:var(--orange); color:white; border-color:var(--orange); }
+.claim-item { padding:15px 20px; border-bottom:1px solid var(--paper3); cursor:pointer; transition:background 0.15s; display:flex; align-items:flex-start; gap:13px; }
+.claim-item:last-child { border:none; }
+.claim-item:hover { background:var(--paper2); }
+.claim-item.selected { background:var(--orange-bg); border-left:3px solid var(--orange); }
+.claim-type-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.claim-info { flex:1; min-width:0; }
+.claim-id-row { display:flex; justify-content:space-between; align-items:center; }
+.claim-id { font-family:'DM Mono',monospace; font-size:11px; color:var(--ink4); }
+.claim-status-pill { padding:2px 9px; border-radius:100px; font-size:10.5px; font-weight:700; }
+.csp-paid { background:var(--green-bg); color:var(--green); }
+.csp-processing { background:var(--blue-bg); color:var(--blue); }
+.csp-reviewing { background:var(--amber-bg); color:var(--amber); }
+.csp-rejected { background:var(--red-bg); color:var(--red); }
+.claim-event { font-size:14px; font-weight:700; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.claim-meta { font-size:12px; color:var(--ink3); margin-top:2px; }
+.claim-amount { font-size:15px; font-weight:800; color:var(--green); }
+
+/* Claim Detail Panel */
+.claim-detail { background:white; border:1.5px solid var(--border); border-radius:14px; overflow:hidden; }
+.cdp-header { padding:20px 22px; border-bottom:1px solid var(--paper3); }
+.cdp-event-name { font-size:20px; font-weight:800; letter-spacing:-0.5px; }
+.cdp-id { font-family:'DM Mono',monospace; font-size:12px; color:var(--ink4); margin-top:4px; }
+.cdp-body { padding:20px 22px; }
+.cdp-section { margin-bottom:22px; }
+.cdp-section-title { font-size:12px; font-weight:700; color:var(--ink4); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:12px; }
+.cdp-data-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.cdp-data-item { background:var(--paper2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+.cdp-data-label { font-size:11px; font-weight:700; color:var(--ink4); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:4px; }
+.cdp-data-val { font-size:15px; font-weight:800; color:var(--ink); }
+.cdp-data-val.alert { color:var(--red); }
+.cdp-data-val.good { color:var(--green); }
+.timeline-steps { display:flex; flex-direction:column; gap:0; }
+.ts-step { display:flex; gap:14px; padding-bottom:16px; position:relative; }
+.ts-step:last-child { padding-bottom:0; }
+.ts-step:not(:last-child)::before { content:''; position:absolute; left:13px; top:28px; bottom:0; width:2px; background:var(--paper3); }
+.ts-dot { width:26px; height:26px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:white; position:relative; z-index:1; }
+.ts-dot.done { background:var(--green); }
+.ts-dot.now { background:var(--orange); animation:livepulse 2s infinite; }
+.ts-dot.pending { background:var(--paper3); border:2px solid var(--border2); }
+.ts-content { flex:1; padding-top:2px; }
+.ts-label { font-size:13.5px; font-weight:700; color:var(--ink); }
+.ts-time { font-size:12px; color:var(--ink3); margin-top:2px; }
+.ts-note { font-size:12px; color:var(--ink3); margin-top:4px; background:var(--paper2); border-radius:7px; padding:6px 10px; }
+.fraud-score-bar { height:8px; background:var(--paper3); border-radius:100px; overflow:hidden; margin-top:8px; }
+.fsb-fill { height:100%; border-radius:100px; transition:width 1s ease; }
+.cdp-payout-box { background:linear-gradient(135deg,var(--green),#25a865); border-radius:14px; padding:18px 20px; color:white; display:flex; justify-content:space-between; align-items:center; }
+.cdp-payout-amount { font-size:34px; font-weight:800; letter-spacing:-1.5px; }
+.cdp-payout-label { font-size:12px; opacity:0.8; margin-top:2px; }
+.cdp-payout-upi { font-size:12px; opacity:0.7; font-family:'DM Mono',monospace; }
+.new-claim-btn { display:flex; align-items:center; justify-content:center; gap:8px; padding:13px; border:2px dashed var(--border2); border-radius:12px; cursor:pointer; font-family:'Bricolage Grotesque',sans-serif; font-size:14px; font-weight:600; color:var(--ink3); background:none; width:100%; transition:all 0.18s; margin-top:10px; }
+.new-claim-btn:hover { border-color:var(--orange); color:var(--orange); background:var(--orange-bg); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#"><div class="logo-shield">🛡</div>GigGuard</a>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="show('onboarding')">Onboarding</button>
+    <button class="nav-link" onclick="show('dashboard')">Worker Dashboard</button>
+    <button class="nav-link" onclick="show('policy')">Policy Management</button>
+    <button class="nav-link" onclick="show('premium')">Premium Calculator</button>
+    <button class="nav-link" onclick="show('claims')">Claims</button>
+    <button class="nav-link" onclick="show('simulate')">Simulate Event</button>
+    <button class="nav-link" onclick="show('admin')">Admin View</button>
+  </div>
+  <div class="nav-right">
+    <div class="live-pill"><div class="live-dot"></div>HIE Live</div>
+  </div>
+</nav>
+
+<!-- ONBOARDING -->
+<div id="screen-onboarding" class="screen active">
+  <div class="ob-left">
+    <div>
+      <div class="ob-tagline">"Because the rain doesn't care about your rent."</div>
+      <div class="ob-headline">No claims.<br>No paperwork.<br><em>Just your money.</em></div>
+       <div class="ob-story">
+      </div>
+    </div>
+    
+  </div>
+  <div class="ob-right">
+    <div class="step-indicator">
+      <div class="step-pip active" id="sp1"></div><div class="step-pip" id="sp2"></div><div class="step-pip" id="sp3"></div><div class="step-pip" id="sp4"></div><div class="step-pip" id="sp5"></div>
+    </div>
+    <div class="wizard-step active" id="ws1">
+      <div class="step-label">Step 1 of 5</div>
+      <div class="step-title">Enter your number</div>
+      <div class="step-sub">We'll send a one-time OTP. No email needed.</div>
+      <div class="field-block"><label class="field-label">Mobile Number</label><input class="field-input" id="phone" type="tel" placeholder="+91  98XXX XXXXX"></div>
+      <button class="btn btn-orange btn-full" onclick="goStep(2)">Get OTP →</button>
+    </div>
+    <div class="wizard-step" id="ws2">
+      <div class="step-label">Step 2 of 5</div>
+      <div class="step-title">Verify OTP</div>
+      <div class="step-sub">Enter the 4-digit code sent to your number.</div>
+      <div class="field-block">
+        <label class="field-label">One-Time Password</label>
+        <div class="otp-row">
+          <input class="otp-box" maxlength="1" oninput="otpMove(this,0)">
+          <input class="otp-box" maxlength="1" oninput="otpMove(this,1)">
+          <input class="otp-box" maxlength="1" oninput="otpMove(this,2)">
+          <input class="otp-box" maxlength="1" oninput="otpMove(this,3)">
+        </div>
+        <div class="otp-hint">Didn't get it? <span>Resend OTP</span></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(1)">← Back</button><button class="btn btn-orange" onclick="goStep(3)">Verify →</button></div>
+    </div>
+    <div class="wizard-step" id="ws3">
+      <div class="step-label">Step 3 of 5</div>
+      <div class="step-title">Which platform?</div>
+      <div class="step-sub">We cross-verify your delivery activity for payouts.</div>
+      <div class="platform-grid">
+        <div class="platform-btn" onclick="pickPlatform(this)"><div class="pb-logo" style="background:#ff6600">🟠</div><div><div class="pb-name">Swiggy</div><div class="pb-type">Food delivery</div></div><div class="pb-check">✓</div></div>
+        <div class="platform-btn" onclick="pickPlatform(this)"><div class="pb-logo" style="background:#e23744">🔴</div><div><div class="pb-name">Zomato</div><div class="pb-type">Food delivery</div></div><div class="pb-check">✓</div></div>
+        <div class="platform-btn" onclick="pickPlatform(this)"><div class="pb-logo" style="background:#ffd700">🟡</div><div><div class="pb-name">Rapido</div><div class="pb-type">Bike taxi</div></div><div class="pb-check">✓</div></div>
+        <div class="platform-btn" onclick="pickPlatform(this)"><div class="pb-logo" style="background:#ccc">🔵</div><div><div class="pb-name">Other</div><div class="pb-type">Ola, Blinkit…</div></div><div class="pb-check">✓</div></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(2)">← Back</button><button class="btn btn-orange" onclick="goStep(4)">Continue →</button></div>
+    </div>
+    <div class="wizard-step" id="ws4">
+      <div class="step-label">Step 4 of 5</div>
+      <div class="step-title">Pick your coverage</div>
+      <div class="step-sub">AI Risk Profiler recommends <strong>Standard</strong> for Velachery — monsoon-prone zone.</div>
+      <div class="plan-grid">
+        <div class="plan-row" onclick="pickPlan(this)">
+          <div class="plan-dot" style="background:#22c55e"></div><div class="plan-radio"></div>
+          <div class="plan-info"><div class="plan-name">Basic</div><div class="plan-triggers">Rain + AQI triggers only</div></div>
+          <div class="plan-price-col"><div class="plan-price">₹29 <span>/ wk</span></div><div class="plan-max">Max ₹350</div></div>
+        </div>
+        <div class="plan-row selected rec-tag" onclick="pickPlan(this)">
+          <div class="plan-dot" style="background:#3b82f6"></div><div class="plan-radio"></div>
+          <div class="plan-info"><div class="plan-name">Standard</div><div class="plan-triggers">All 5 triggers + auto-pause</div></div>
+          <div class="plan-price-col"><div class="plan-price">₹49 <span>/ wk</span></div><div class="plan-max">Max ₹700</div></div>
+        </div>
+        <div class="plan-row" onclick="pickPlan(this)">
+          <div class="plan-dot" style="background:#a855f7"></div><div class="plan-radio"></div>
+          <div class="plan-info"><div class="plan-name">Pro</div><div class="plan-triggers">All 5 + priority payout</div></div>
+          <div class="plan-price-col"><div class="plan-price">₹79 <span>/ wk</span></div><div class="plan-max">Max ₹1,400</div></div>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn btn-ghost" onclick="goStep(3)">← Back</button><button class="btn btn-orange" onclick="goStep(5)">Link UPI & Activate →</button></div>
+    </div>
+    <div class="wizard-step" id="ws5">
+      <div class="coverage-box">
+        <div class="coverage-top"><div class="check-circle">✓</div><div><div class="coverage-title">You're covered!</div><div class="coverage-sub">Coverage active immediately. Zone monitored 24/7.</div></div></div>
+        <div class="cov-rows">
+          <div class="cov-row"><span class="cov-key">Plan</span><span class="cov-val">Standard</span></div>
+          <div class="cov-div"></div>
+          <div class="cov-row"><span class="cov-key">Weekly premium (AI-adjusted)</span><span class="cov-val">₹62</span></div>
+          <div class="cov-row"><span class="cov-key">Max weekly payout</span><span class="cov-val">₹700</span></div>
+          <div class="cov-row"><span class="cov-key">Zone</span><span class="cov-val">Velachery, Chennai</span></div>
+          <div class="cov-row"><span class="cov-key">TrustGPS status</span><span class="cov-val">✅ Verified</span></div>
+        </div>
+      </div>
+      <div style="background:var(--paper2);border:1px solid var(--border);border-radius:12px;padding:13px 15px;font-size:13px;color:var(--ink2);margin-bottom:18px;display:flex;align-items:center;gap:9px">
+        💬 <div>You'll receive a WhatsApp confirmation from <strong>GigGuard</strong> within 2 minutes.</div>
+      </div>
+      <button class="btn btn-orange btn-full" onclick="show('dashboard')">Open Dashboard →</button>
+    </div>
+  </div>
+</div>
+
+<!-- WORKER DASHBOARD -->
+<div id="screen-dashboard" class="screen">
+  <div class="dash-wrap">
+    <div class="dash-top">
+      <div>
+        <div class="dash-greeting">Good morning, <span>Kumar</span> 👋</div>
+        <div class="dash-greeting-sub">Swiggy · Velachery, Chennai · Standard Plan active</div>
+      </div>
+      <div class="dash-premium-box">
+        <div class="dash-prem-label">This week's premium</div>
+        <div class="dash-prem-val">₹62</div>
+        <div class="dash-prem-sub">debited Mon · max payout ₹700</div>
+      </div>
+    </div>
+    <div class="dash-grid-top">
+      <div class="zone-card">
+        <div class="zone-card-top">
+          <div><div class="zone-card-name">Velachery, Chennai</div><div class="zone-card-id">Zone GG-CHN-0042 · 500m grid · Updated 4 mins ago</div></div>
+          <div class="risk-badge low" id="db-risk-badge"><div class="risk-dot"></div>LOW RISK</div>
+        </div>
+        <div class="triggers-strip">
+          <div class="trig-chip">🌧️ Rainfall <span class="trig-val">8mm/hr</span></div>
+          <div class="trig-chip">☁️ AQI <span class="trig-val">142</span></div>
+          <div class="trig-chip">🌡️ Temp <span class="trig-val">34°C</span></div>
+          <div class="trig-chip">💨 Wind <span class="trig-val">18 km/h</span></div>
+          <div class="trig-chip">🚦 Traffic <span class="trig-val">Moderate</span></div>
+        </div>
+        <div class="drs-row">
+          <div class="drs-label-block"><div class="drs-label-top">DRS Score</div><div class="drs-num safe" id="db-drs-num">28</div></div>
+          <div class="drs-bar-col">
+            <div class="drs-bar-track"><div class="drs-bar-fill safe" id="db-drs-bar" style="width:28%"></div></div>
+            <div class="drs-ticks-row"><span class="drs-tick">0 safe</span><span class="drs-tick">50</span><span class="drs-tick" style="color:var(--amber)">70 alert</span><span class="drs-tick" style="color:var(--red)">90 pay</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">TrustGPS Score</div>
+        <div class="card-val orange">94</div>
+        <div class="card-sub">5-signal verified · last session</div>
+        <div class="card-tag tag-green">✓ High confidence</div>
+      </div>
+    </div>
+    <div class="dash-grid-bot">
+      <div class="history-card">
+        <div class="history-header"><div class="history-title">Automatic Payouts</div><div class="history-total">₹2,340 received</div></div>
+        <div class="payout-row"><div class="payout-icon rain">🌧️</div><div class="payout-text"><div class="payout-event-name">Monsoon Blackout — Cyclone Michaung</div><div class="payout-date">Nov 4, 2024 · DRS 94 · 52 hrs offline</div></div><div class="payout-amount-col"><div class="payout-amt">₹960</div><div class="payout-time">4 min transfer</div></div></div>
+        <div class="payout-row"><div class="payout-icon aqi">☁️</div><div class="payout-text"><div class="payout-event-name">Toxic Air Day — AQI 340</div><div class="payout-date">Oct 28, 2024 · 6 hrs above threshold</div></div><div class="payout-amount-col"><div class="payout-amt">₹490</div><div class="payout-time">3 min transfer</div></div></div>
+        <div class="payout-row"><div class="payout-icon rain">🌧️</div><div class="payout-text"><div class="payout-event-name">Heavy Rainfall — 58mm in 6hrs</div><div class="payout-date">Oct 15, 2024 · T-01 trigger</div></div><div class="payout-amount-col"><div class="payout-amt">₹420</div><div class="payout-time">5 min transfer</div></div></div>
+        <div class="payout-row"><div class="payout-icon heat">🔥</div><div class="payout-text"><div class="payout-event-name">Heat Lockout — 44°C, IMD Red</div><div class="payout-date">May 22, 2024 · T-02 trigger</div></div><div class="payout-amount-col"><div class="payout-amt">₹350</div><div class="payout-time">2 min transfer</div></div></div>
+        <div class="payout-row"><div class="payout-icon lock">🚫</div><div class="payout-text"><div class="payout-event-name">Zone Lockdown — Local Strike</div><div class="payout-date">Apr 10, 2024 · 4 hrs · T-05</div></div><div class="payout-amount-col"><div class="payout-amt">₹120</div><div class="payout-time">4 min transfer</div></div></div>
+      </div>
+      <div class="forecast-card">
+        <div class="card-label">7-Day Disruption Forecast</div>
+        <div class="forecast-bars" id="forecast-bars"></div>
+        <div class="forecast-note">⚠️ Wed–Thu: Heavy rain forecast</div>
+        <div style="margin-top:14px;background:var(--amber-bg);border:1px solid #e8d080;border-radius:10px;padding:11px 13px;font-size:13px;color:var(--amber)">
+          <strong>Sunday alert queued:</strong> "Risky week ahead 🌧️ — max payout ₹700. Premium ₹74 charged Monday."
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIMULATE -->
+<div id="screen-simulate" class="screen">
+  <div class="sim-wrap">
+    <div class="page-eyebrow">Simulation Engine</div>
+    <h2 class="page-h2">Trigger a Disruption Event</h2>
+    <p class="page-sub">Adjust environmental values or fire a preset scenario to watch the full payout pipeline run in real time.</p>
+    <div class="sim-layout">
+      <div class="sim-card">
+        <div class="sim-card-title">Environmental Parameters</div>
+        <div class="sim-card-sub">These feed into the HyperZone Intelligence Engine (HIE)</div>
+        <div class="slider-block"><div class="slider-top"><span class="slider-name">🌧️ Rainfall</span><span class="slider-num" id="sv-rain">8 mm/hr</span></div><input type="range" min="0" max="100" value="8" id="sl-rain" oninput="simUpdate()"></div>
+        <div class="slider-block"><div class="slider-top"><span class="slider-name">☁️ AQI Level</span><span class="slider-num" id="sv-aqi">142</span></div><input type="range" min="0" max="500" value="142" id="sl-aqi" oninput="simUpdate()"></div>
+        <div class="slider-block"><div class="slider-top"><span class="slider-name">🌡️ Temperature</span><span class="slider-num" id="sv-temp">34°C</span></div><input type="range" min="20" max="50" value="34" id="sl-temp" oninput="simUpdate()"></div>
+        <div class="slider-block"><div class="slider-top"><span class="slider-name">💨 Wind Speed</span><span class="slider-num" id="sv-wind">18 km/h</span></div><input type="range" min="0" max="120" value="18" id="sl-wind" oninput="simUpdate()"></div>
+        <div class="drs-result">
+          <div class="drs-result-label">Disruption Risk Score</div>
+          <div class="drs-result-num" id="sim-drs-num" style="color:var(--green)">28</div>
+          <div class="drs-result-status" id="sim-drs-status" style="background:var(--green-bg);color:var(--green);border:1px solid #b8ddc8">✅ No payout triggered</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="sim-card" style="flex:0">
+          <div class="sim-card-title">Quick Triggers</div>
+          <div class="sim-card-sub">Fire a real disruption scenario instantly</div>
+          <div class="trigger-grid">
+            <div class="trig-fire-btn" onclick="fireTrig('rain')"><div class="trig-fire-icon">🌧️</div><div class="trig-fire-name">Cyclone Rain</div><div class="trig-fire-cond">&gt;50mm / 6hrs</div></div>
+            <div class="trig-fire-btn" onclick="fireTrig('aqi')"><div class="trig-fire-icon">☁️</div><div class="trig-fire-name">Toxic Air</div><div class="trig-fire-cond">AQI &gt;300</div></div>
+            <div class="trig-fire-btn" onclick="fireTrig('heat')"><div class="trig-fire-icon">🔥</div><div class="trig-fire-name">Heat Lockout</div><div class="trig-fire-cond">&gt;43°C Red Alert</div></div>
+            <div class="trig-fire-btn" onclick="fireTrig('flood')"><div class="trig-fire-icon">🌊</div><div class="trig-fire-name">Flood Alert</div><div class="trig-fire-cond">IMD Red + GPS</div></div>
+          </div>
+        </div>
+        <div class="sim-card" style="padding:0;overflow:hidden">
+          <div class="wa-preview">
+            <div class="wa-header"><div class="wa-avatar">🛡</div><div><div class="wa-name">GigGuard</div><div class="wa-online" id="wa-online">Waiting for event…</div></div></div>
+            <div class="wa-body"><div class="wa-bubble" id="wa-bubble"><span class="wa-bubble-idle">No event yet. Fire a trigger to see the worker notification.</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pipeline-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:15px;font-weight:800">⚡ Payout Pipeline</div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink4)" id="pipe-status-label">Idle — waiting for DRS &gt; 70</div>
+      </div>
+      <div class="pipeline-row">
+        <div class="pipe-step"><div class="pipe-icon" id="pi1">📡</div><div class="pipe-name">HIE Scan</div><div class="pipe-sub">30-min</div></div>
+        <div class="pipe-arrow" id="pa1">→</div>
+        <div class="pipe-step"><div class="pipe-icon" id="pi2">📊</div><div class="pipe-name">DRS Calc</div><div class="pipe-sub">&gt;70 gate</div></div>
+        <div class="pipe-arrow" id="pa2">→</div>
+        <div class="pipe-step"><div class="pipe-icon" id="pi3">📍</div><div class="pipe-name">TrustGPS</div><div class="pipe-sub">5 signals</div></div>
+        <div class="pipe-arrow" id="pa3">→</div>
+        <div class="pipe-step"><div class="pipe-icon" id="pi4">🧠</div><div class="pipe-name">TruthNet</div><div class="pipe-sub">Fraud score</div></div>
+        <div class="pipe-arrow" id="pa4">→</div>
+        <div class="pipe-step"><div class="pipe-icon" id="pi5">💳</div><div class="pipe-name">Razorpay</div><div class="pipe-sub">UPI payout</div></div>
+        <div class="pipe-arrow" id="pa5">→</div>
+        <div class="pipe-step"><div class="pipe-icon" id="pi6">💬</div><div class="pipe-name">WhatsApp</div><div class="pipe-sub">Notify</div></div>
+      </div>
+      <div class="pipe-log" id="pipe-log">&gt; System idle. Monitoring 48 active zones across Chennai, Bengaluru, Mumbai...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="screen-admin" class="screen">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <div>
+        <div class="page-eyebrow">Operations</div>
+        <h2 class="page-h2" style="margin-top:8px">Admin & Insurer Dashboard</h2>
+        <p style="font-size:13px;color:var(--ink3);margin-top:4px">Live across Chennai, Bengaluru, Mumbai, Hyderabad, Delhi</p>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--ink4)" id="admin-date"></div>
+    </div>
+    <div class="admin-stat-row">
+      <div class="a-stat"><div class="a-stat-label">Active Workers</div><div class="a-stat-val">8,241</div><div class="a-stat-change up">↑ 12% this week</div></div>
+      <div class="a-stat"><div class="a-stat-label">Payouts This Week</div><div class="a-stat-val">₹4.2L</div><div class="a-stat-change up">↑ 3 events fired</div></div>
+      <div class="a-stat"><div class="a-stat-label">Premium Pool</div><div class="a-stat-val">₹8.9L</div><div class="a-stat-change dn">Loss ratio: 47%</div></div>
+      <div class="a-stat"><div class="a-stat-label">Fraud Queue</div><div class="a-stat-val">7</div><div class="a-stat-change dn">↑ 2 new flags today</div></div>
+    </div>
+    <div class="admin-main">
+      <div class="heatmap-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:15px;font-weight:800">Disruption Heatmap — Chennai</div>
+          <div style="font-size:12px;color:var(--ink4)">Updated 4 mins ago</div>
+        </div>
+        <div class="heatmap-grid" id="hm-grid"></div>
+        <div class="legend-row">
+          <div class="leg-item"><div class="leg-dot" style="background:#c9bfaf"></div>DRS 0–30</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#e8d080"></div>DRS 31–70</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#f0b0a8"></div>DRS 71–100</div>
+          <div style="margin-left:auto;font-size:11px;font-weight:600;color:var(--red)">⬛ 3 zones critical</div>
+        </div>
+      </div>
+      <div class="fraud-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-size:15px;font-weight:800">TruthNet Fraud Queue</div>
+          <div style="font-size:12px;color:var(--ink4)" id="fq-count">4 pending</div>
+        </div>
+        <div id="fraud-list">
+          <div class="fraud-row"><div class="fraud-num">#21</div><div class="fraud-info"><div class="fraud-id">Worker #4821</div><div class="fraud-reason">Cell tower mismatch 3.2km · new zone claim</div></div><span class="fraud-score-badge high">81</span><div class="fraud-btns"><button class="fraud-btn ok" onclick="resolveFraud(this,true)">✓</button><button class="fraud-btn no" onclick="resolveFraud(this,false)">✗</button></div></div>
+          <div class="fraud-row"><div class="fraud-num">#22</div><div class="fraud-info"><div class="fraud-id">Worker #2104</div><div class="fraud-reason">Static GPS during active shift · motion anomaly</div></div><span class="fraud-score-badge high">76</span><div class="fraud-btns"><button class="fraud-btn ok" onclick="resolveFraud(this,true)">✓</button><button class="fraud-btn no" onclick="resolveFraud(this,false)">✗</button></div></div>
+          <div class="fraud-row"><div class="fraud-num">#23</div><div class="fraud-info"><div class="fraud-id">Worker #6632</div><div class="fraud-reason">Zero platform activity 72hrs · AQI claim</div></div><span class="fraud-score-badge med">62</span><div class="fraud-btns"><button class="fraud-btn ok" onclick="resolveFraud(this,true)">✓</button><button class="fraud-btn no" onclick="resolveFraud(this,false)">✗</button></div></div>
+          <div class="fraud-row"><div class="fraud-num">#24</div><div class="fraud-info"><div class="fraud-id">Worker #3391</div><div class="fraud-reason">WiFi beacon fingerprint mismatch</div></div><span class="fraud-score-badge med">55</span><div class="fraud-btns"><button class="fraud-btn ok" onclick="resolveFraud(this,true)">✓</button><button class="fraud-btn no" onclick="resolveFraud(this,false)">✗</button></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== POLICY MANAGEMENT ===== -->
+<div id="screen-policy" class="screen">
+  <div class="pol-wrap">
+    <div class="pol-header">
+      <div>
+        <div class="page-eyebrow">Policy Management</div>
+        <h2 class="page-h2">Your Insurance Policies</h2>
+        <p class="page-sub" style="margin-bottom:0">Manage coverage, triggers, and renewals for all active policies.</p>
+      </div>
+      <button class="btn btn-orange" onclick="openModal('mod-new-policy')">+ New Policy</button>
+    </div>
+    <div class="pol-tabs">
+      <button class="pol-tab active" onclick="polTab(this,'pol-active')">Active (1)</button>
+      <button class="pol-tab" onclick="polTab(this,'pol-history')">History (5)</button>
+      <button class="pol-tab" onclick="polTab(this,'pol-renew')">Renewal</button>
+    </div>
+
+    <!-- Active Tab -->
+    <div id="pol-active" class="pol-tab-content active">
+      <div class="pol-card">
+        <div class="pol-card-top">
+          <div>
+            <div class="pol-id-row"><div class="pol-id">POL-GG-2024-0041</div></div>
+            <div class="pol-name">Standard Income Shield</div>
+          </div>
+          <div class="pol-status-badge active">● Active</div>
+        </div>
+        <div class="pol-triggers-row">
+          <div class="pol-trig on">🌧️ Heavy Rain (&gt;50mm)</div>
+          <div class="pol-trig on">☁️ AQI Alert (&gt;300)</div>
+          <div class="pol-trig on">🌡️ Heat Lockout (&gt;43°C)</div>
+          <div class="pol-trig on">🌊 Flood Zone</div>
+          <div class="pol-trig on">🚫 Social Disruption</div>
+        </div>
+        <div class="pol-meta-row">
+          <div class="pol-meta-item"><div class="pol-meta-label">Weekly Premium</div><div class="pol-meta-val">₹62</div><div class="pol-meta-sub">AI-adjusted this week</div></div>
+          <div class="pol-meta-item"><div class="pol-meta-label">Max Payout/Week</div><div class="pol-meta-val">₹700</div><div class="pol-meta-sub">Standard tier</div></div>
+          <div class="pol-meta-item"><div class="pol-meta-label">TrustGPS Score</div><div class="pol-meta-val" style="color:var(--green)">94/100</div><div class="pol-meta-sub">High confidence</div></div>
+          <div class="pol-meta-item"><div class="pol-meta-label">Active Since</div><div class="pol-meta-val">Mar 4, 2025</div><div class="pol-meta-sub">Week 4 now</div></div>
+          <div class="pol-meta-item"><div class="pol-meta-label">Total Payouts</div><div class="pol-meta-val" style="color:var(--green)">₹2,340</div><div class="pol-meta-sub">5 events paid</div></div>
+        </div>
+        <div class="renewal-timeline" style="margin-top:18px">
+          <div class="rtl-step"><div class="rtl-dot done">✓</div><div class="rtl-step-label">Premium Debited</div><div class="rtl-step-date">Mar 24</div></div>
+          <div class="rtl-step"><div class="rtl-dot now">●</div><div class="rtl-step-label">Coverage Active</div><div class="rtl-step-date">Mar 24–30</div></div>
+          <div class="rtl-step"><div class="rtl-dot pending"></div><div class="rtl-step-label">AI Risk Calc</div><div class="rtl-step-date">Mar 30</div></div>
+          <div class="rtl-step"><div class="rtl-dot pending"></div><div class="rtl-step-label">Next Premium</div><div class="rtl-step-date">Mar 31</div></div>
+        </div>
+        <div class="pol-actions">
+          <button class="pol-action-btn primary" onclick="openModal('mod-modify')">✏️ Modify Coverage</button>
+          <button class="pol-action-btn" onclick="openModal('mod-upgrade')">⬆️ Upgrade Plan</button>
+          <button class="pol-action-btn" onclick="showPolToast('Policy paused','Coverage will resume Monday')">⏸ Pause Week</button>
+          <button class="pol-action-btn danger" onclick="showPolToast('Cancellation requested','We\'ll process by EOD')">Cancel Policy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Tab -->
+    <div id="pol-history" class="pol-tab-content">
+      <div class="pol-card inactive" style="opacity:0.7">
+        <div class="pol-card-top">
+          <div><div class="pol-id-row"><div class="pol-id">POL-GG-2024-0039</div></div><div class="pol-name">Basic Income Shield</div></div>
+          <div class="pol-status-badge expired">Expired</div>
+        </div>
+        <div class="pol-meta-row">
+          <div class="pol-meta-item"><div class="pol-meta-label">Period</div><div class="pol-meta-val">Feb 10–Mar 3</div></div>
+          <div class="pol-meta-item"><div class="pol-meta-label">Total Premium Paid</div><div class="pol-meta-val">₹203</div></div>
+          <div class="pol-meta-item"><div class="pol-meta-label">Total Payouts</div><div class="pol-meta-val" style="color:var(--green)">₹770</div></div>
+          <div class="pol-meta-item"><div class="pol-meta-label">Loss Ratio</div><div class="pol-meta-val">3.79×</div></div>
+          <div class="pol-meta-item"><div class="pol-meta-label">Plan</div><div class="pol-meta-val">Basic</div></div>
+        </div>
+        <div class="pol-actions"><button class="pol-action-btn primary" onclick="show('policy');polTab(document.querySelector('.pol-tab'),'pol-active')">Renew Policy →</button><button class="pol-action-btn">Download Certificate</button></div>
+      </div>
+    </div>
+
+    <!-- Renewal Tab -->
+    <div id="pol-renew" class="pol-tab-content">
+      <div class="pol-card" style="border-color:var(--orange)">
+        <div style="background:var(--orange-bg);border:1px solid var(--orange);border-radius:10px;padding:13px 16px;margin-bottom:18px;font-size:14px;font-weight:600;color:var(--orange)">
+          ⏰ Your current policy renews in <strong>3 days</strong> (Mar 31). AI has calculated next week's premium.
+        </div>
+        <div class="pol-card-top">
+          <div><div class="pol-name">Standard Income Shield — Week 5 Preview</div></div>
+          <div class="pol-status-badge" style="background:var(--blue-bg);color:var(--blue);border-color:#c0d4f0">Upcoming</div>
+        </div>
+        <div class="pol-meta-row">
+          <div class="pol-meta-item"><div class="pol-meta-label">Base Premium</div><div class="pol-meta-val">₹49</div><div class="pol-meta-sub">Standard plan</div></div>
+          <div class="pol-meta-item"><div class="pol-meta-label">Zone Risk Adj.</div><div class="pol-meta-val" style="color:var(--red)">+₹18</div><div class="pol-meta-sub">Monsoon forecast ↑</div></div>
+          <div class="pol-meta-item"><div class="pol-meta-label">Loyalty Discount</div><div class="pol-meta-val" style="color:var(--green)">−₹5</div><div class="pol-meta-sub">4 weeks active</div></div>
+          <div class="pol-meta-item"><div class="pol-meta-label">Next Premium</div><div class="pol-meta-val" style="color:var(--orange)">₹62</div><div class="pol-meta-sub">Debited Mon 6 AM</div></div>
+          <div class="pol-meta-item"><div class="pol-meta-label">Max Payout</div><div class="pol-meta-val">₹700</div><div class="pol-meta-sub">No change</div></div>
+        </div>
+        <div class="pol-actions"><button class="pol-action-btn primary" onclick="showPolToast('Auto-renewal confirmed','₹62 will be debited Monday 6 AM')">Confirm Auto-Renew ✓</button><button class="pol-action-btn" onclick="show('premium')">Recalculate →</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modify Coverage Modal -->
+<div id="mod-modify" class="modal-overlay" onclick="closeModalOutside(event,'mod-modify')">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Modify Coverage Triggers</div>
+      <button class="modal-close" onclick="closeModal('mod-modify')">✕</button>
+    </div>
+    <div class="mod-section">
+      <div class="mod-section-title">Active Triggers — toggle to add/remove</div>
+      <div class="mod-toggle-row"><div><div class="mod-toggle-label">🌧️ Heavy Rain</div><div class="mod-toggle-sub">Triggers at &gt;50mm / 6hrs</div></div><div class="toggle-sw on" onclick="toggleSw(this)"></div></div>
+      <div class="mod-toggle-row"><div><div class="mod-toggle-label">☁️ AQI Pollution Alert</div><div class="mod-toggle-sub">Triggers at AQI &gt;300</div></div><div class="toggle-sw on" onclick="toggleSw(this)"></div></div>
+      <div class="mod-toggle-row"><div><div class="mod-toggle-label">🌡️ Extreme Heat</div><div class="mod-toggle-sub">Triggers at &gt;43°C + IMD Red Alert</div></div><div class="toggle-sw on" onclick="toggleSw(this)"></div></div>
+      <div class="mod-toggle-row"><div><div class="mod-toggle-label">🌊 Flood Alert</div><div class="mod-toggle-sub">IMD Red + GPS zone confirmation</div></div><div class="toggle-sw on" onclick="toggleSw(this)"></div></div>
+      <div class="mod-toggle-row"><div><div class="mod-toggle-label">🚫 Social Disruption</div><div class="mod-toggle-sub">Curfews, strikes, zone closures</div></div><div class="toggle-sw on" onclick="toggleSw(this)"></div></div>
+    </div>
+    <div class="mod-section">
+      <div class="mod-section-title">Add-on Triggers (Pro plan)</div>
+      <div class="mod-toggle-row"><div><div class="mod-toggle-label">⚡ Cyclone Warning</div><div class="mod-toggle-sub">NDRF Level 3+ alert — +₹8/wk</div></div><div class="toggle-sw" onclick="toggleSw(this)"></div></div>
+      <div class="mod-toggle-row"><div><div class="mod-toggle-label">🌫️ Dense Fog</div><div class="mod-toggle-sub">Visibility &lt;200m — +₹5/wk</div></div><div class="toggle-sw" onclick="toggleSw(this)"></div></div>
+    </div>
+    <div class="premium-preview-box">
+      <div class="premium-preview-label">Adjusted Weekly Premium</div>
+      <div class="premium-preview-num">₹62</div>
+      <div class="premium-preview-sub">AI-recalculated · takes effect next Monday</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('mod-modify')">Cancel</button>
+      <button class="btn btn-orange" style="flex:1" onclick="closeModal('mod-modify');showPolToast('Coverage updated','New triggers active from Monday')">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Upgrade Modal -->
+<div id="mod-upgrade" class="modal-overlay" onclick="closeModalOutside(event,'mod-upgrade')">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Upgrade Your Plan</div>
+      <button class="modal-close" onclick="closeModal('mod-upgrade')">✕</button>
+    </div>
+    <div class="plan-grid" style="margin-bottom:18px">
+      <div class="plan-row" onclick="pickPlan(this)"><div class="plan-dot" style="background:#22c55e"></div><div class="plan-radio"></div><div class="plan-info"><div class="plan-name">Basic</div><div class="plan-triggers">Rain + AQI only</div></div><div class="plan-price-col"><div class="plan-price">₹29 <span>/ wk</span></div><div class="plan-max">Max ₹350</div></div></div>
+      <div class="plan-row selected" onclick="pickPlan(this)"><div class="plan-dot" style="background:#3b82f6"></div><div class="plan-radio"></div><div class="plan-info"><div class="plan-name">Standard</div><div class="plan-triggers">All 5 triggers</div></div><div class="plan-price-col"><div class="plan-price">₹49 <span>/ wk</span></div><div class="plan-max">Max ₹700</div></div></div>
+      <div class="plan-row rec-tag" onclick="pickPlan(this)"><div class="plan-dot" style="background:#a855f7"></div><div class="plan-radio"></div><div class="plan-info"><div class="plan-name">Pro</div><div class="plan-triggers">All 5 + priority + cyclone</div></div><div class="plan-price-col"><div class="plan-price">₹79 <span>/ wk</span></div><div class="plan-max">Max ₹1,400</div></div></div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('mod-upgrade')">Cancel</button>
+      <button class="btn btn-orange" style="flex:1" onclick="closeModal('mod-upgrade');showPolToast('Plan upgraded!','Takes effect next Monday')">Confirm Upgrade</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Policy Modal -->
+<div id="mod-new-policy" class="modal-overlay" onclick="closeModalOutside(event,'mod-new-policy')">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Create New Policy</div>
+      <button class="modal-close" onclick="closeModal('mod-new-policy')">✕</button>
+    </div>
+    <div class="field-block"><label class="field-label">Select Platform</label><select class="calc-select"><option>Swiggy — Food Delivery</option><option>Zomato — Food Delivery</option><option>Blinkit — Q-Commerce</option><option>Amazon Flex — E-Commerce</option></select></div>
+    <div class="field-block"><label class="field-label">Coverage Zone (City)</label><select class="calc-select"><option>Chennai — Velachery</option><option>Mumbai — Dharavi</option><option>Bengaluru — Koramangala</option><option>Delhi — Noida Sector 18</option></select></div>
+    <div class="field-block"><label class="field-label">Plan</label>
+      <div class="plan-grid" style="margin-top:8px">
+        <div class="plan-row" onclick="pickPlan(this)"><div class="plan-dot" style="background:#22c55e"></div><div class="plan-radio"></div><div class="plan-info"><div class="plan-name">Basic</div><div class="plan-triggers">Rain + AQI</div></div><div class="plan-price-col"><div class="plan-price">₹29 <span>/ wk</span></div></div></div>
+        <div class="plan-row selected rec-tag" onclick="pickPlan(this)"><div class="plan-dot" style="background:#3b82f6"></div><div class="plan-radio"></div><div class="plan-info"><div class="plan-name">Standard</div><div class="plan-triggers">All 5 triggers</div></div><div class="plan-price-col"><div class="plan-price">₹49 <span>/ wk</span></div></div></div>
+        <div class="plan-row" onclick="pickPlan(this)"><div class="plan-dot" style="background:#a855f7"></div><div class="plan-radio"></div><div class="plan-info"><div class="plan-name">Pro</div><div class="plan-triggers">All + priority</div></div><div class="plan-price-col"><div class="plan-price">₹79 <span>/ wk</span></div></div></div>
+      </div>
+    </div>
+    <div class="field-block"><label class="field-label">UPI ID for Payouts</label><input class="field-input" placeholder="yourname@upi" /></div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('mod-new-policy')">Cancel</button>
+      <button class="btn btn-orange" style="flex:1" onclick="closeModal('mod-new-policy');showPolToast('New policy created!','Coverage starts immediately')">Activate Policy →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DYNAMIC PREMIUM CALCULATOR ===== -->
+<div id="screen-premium" class="screen">
+  <div class="prem-wrap">
+    <div class="page-eyebrow">AI Premium Engine</div>
+    <h2 class="page-h2">Dynamic Premium Calculator</h2>
+    <p class="page-sub">Machine Learning adjusts your weekly premium using hyper-local risk data, historical disruption patterns, and real-time forecasts.</p>
+
+    <div class="prem-layout">
+      <!-- Input Side -->
+      <div>
+        <div class="prem-input-card">
+          <div class="ai-badge"><div class="ai-badge-dot"></div>HIE Risk Model v2.4</div>
+          <div class="calc-field">
+            <label class="calc-label">Delivery Platform</label>
+            <select class="calc-select" onchange="recalcPremium()">
+              <option value="swiggy">Swiggy — Food Delivery</option>
+              <option value="zomato">Zomato — Food Delivery</option>
+              <option value="blinkit">Blinkit — Q-Commerce</option>
+              <option value="amazon">Amazon Flex — E-Commerce</option>
+            </select>
+          </div>
+          <div class="calc-field">
+            <label class="calc-label">Zone / City</label>
+            <select class="calc-select" onchange="recalcPremium()">
+              <option value="chennai-velachery" data-risk="high">Chennai — Velachery (Flood-prone)</option>
+              <option value="mumbai-dharavi" data-risk="high">Mumbai — Dharavi (High density)</option>
+              <option value="blore-koramangala" data-risk="med">Bengaluru — Koramangala</option>
+              <option value="delhi-noida" data-risk="med">Delhi NCR — Noida Sec 18</option>
+              <option value="hyderabad-htech" data-risk="low">Hyderabad — HITEC City (Low risk)</option>
+            </select>
+          </div>
+          <div class="calc-field">
+            <label class="calc-label">Average Weekly Earnings <span id="earn-display" style="font-family:'DM Mono',monospace;font-weight:700;color:var(--orange)">₹3,500</span></label>
+            <div class="calc-range-row">
+              <input type="range" min="1500" max="8000" step="100" value="3500" id="earn-range" oninput="document.getElementById('earn-display').textContent='₹'+parseInt(this.value).toLocaleString('en-IN');recalcPremium()" style="flex:1">
+            </div>
+          </div>
+          <div class="calc-field">
+            <label class="calc-label">Coverage Plan</label>
+            <select class="calc-select" id="prem-plan-sel" onchange="recalcPremium()">
+              <option value="29">Basic — ₹29 base / week</option>
+              <option value="49" selected>Standard — ₹49 base / week</option>
+              <option value="79">Pro — ₹79 base / week</option>
+            </select>
+          </div>
+          <div class="calc-field">
+            <label class="calc-label" style="margin-bottom:10px">Risk Factors <span style="color:var(--ink4);font-weight:400">(select all that apply)</span></label>
+            <div class="risk-factors-grid">
+              <div class="risk-factor-chip selected" onclick="toggleRFC(this)" data-adj="8"><div class="rfc-top"><span class="rfc-icon">🌧️</span><span class="rfc-check">✓</span></div><div class="rfc-name">Monsoon Season</div><div class="rfc-impact">+₹8/wk avg</div></div>
+              <div class="risk-factor-chip" onclick="toggleRFC(this)" data-adj="5"><div class="rfc-top"><span class="rfc-icon">🏘️</span><span class="rfc-check">✓</span></div><div class="rfc-name">Dense Urban Zone</div><div class="rfc-impact">+₹5/wk avg</div></div>
+              <div class="risk-factor-chip" onclick="toggleRFC(this)" data-adj="6"><div class="rfc-top"><span class="rfc-icon">🌊</span><span class="rfc-check">✓</span></div><div class="rfc-name">Flood-Prone Area</div><div class="rfc-impact">+₹6/wk avg</div></div>
+              <div class="risk-factor-chip" onclick="toggleRFC(this)" data-adj="-5"><div class="rfc-top"><span class="rfc-icon">✅</span><span class="rfc-check">✓</span></div><div class="rfc-name">High TrustGPS Score</div><div class="rfc-impact">−₹5/wk discount</div></div>
+              <div class="risk-factor-chip" onclick="toggleRFC(this)" data-adj="-3"><div class="rfc-top"><span class="rfc-icon">🏅</span><span class="rfc-check">✓</span></div><div class="rfc-name">Loyalty (4+ weeks)</div><div class="rfc-impact">−₹3/wk discount</div></div>
+              <div class="risk-factor-chip" onclick="toggleRFC(this)" data-adj="4"><div class="rfc-top"><span class="rfc-icon">🌫️</span><span class="rfc-check">✓</span></div><div class="rfc-name">High AQI History</div><div class="rfc-impact">+₹4/wk avg</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output Side -->
+      <div>
+        <div class="prem-output-card">
+          <div class="premium-result" id="prem-result">
+            <div class="pr-label">AI-Calculated Weekly Premium</div>
+            <div><span class="pr-amount" id="pr-amount">₹62</span><span class="pr-period"> / week</span></div>
+            <div class="pr-breakdown">
+              <div class="pr-row"><span class="pr-row-label">Base premium</span><span class="pr-row-val" id="pr-base">₹49</span></div>
+              <div class="pr-row"><span class="pr-row-label">Zone risk adj.</span><span class="pr-row-val red" id="pr-zone">+₹18</span></div>
+              <div class="pr-row"><span class="pr-row-label">Loyalty discount</span><span class="pr-row-val green" id="pr-loyalty">−₹5</span></div>
+              <div class="pr-div"></div>
+              <div class="pr-row"><span class="pr-row-label">Monthly equivalent</span><span class="pr-row-val" id="pr-monthly">₹248</span></div>
+              <div class="pr-row"><span class="pr-row-label">% of weekly earnings</span><span class="pr-row-val" id="pr-pct">1.8%</span></div>
+            </div>
+          </div>
+
+          <div style="font-size:12px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Coverage Breakdown</div>
+          <div class="coverage-breakdown">
+            <div class="cov-br-row"><div class="cov-br-left"><span class="cov-br-icon">🌧️</span><div><div class="cov-br-name">Heavy Rain (&gt;50mm)</div><div class="cov-br-threshold">T-01 trigger</div></div></div><div class="cov-br-payout" id="cvr-rain">₹700</div></div>
+            <div class="cov-br-row"><div class="cov-br-left"><span class="cov-br-icon">☁️</span><div><div class="cov-br-name">AQI Alert (&gt;300)</div><div class="cov-br-threshold">T-02 trigger</div></div></div><div class="cov-br-payout" id="cvr-aqi">₹490</div></div>
+            <div class="cov-br-row"><div class="cov-br-left"><span class="cov-br-icon">🌡️</span><div><div class="cov-br-name">Extreme Heat (&gt;43°C)</div><div class="cov-br-threshold">T-03 trigger</div></div></div><div class="cov-br-payout" id="cvr-heat">₹420</div></div>
+            <div class="cov-br-row"><div class="cov-br-left"><span class="cov-br-icon">🌊</span><div><div class="cov-br-name">Flood / IMD Red</div><div class="cov-br-threshold">T-04 trigger</div></div></div><div class="cov-br-payout" id="cvr-flood">₹700</div></div>
+            <div class="cov-br-row"><div class="cov-br-left"><span class="cov-br-icon">🚫</span><div><div class="cov-br-name">Social Disruption</div><div class="cov-br-threshold">T-05 trigger</div></div></div><div class="cov-br-payout" id="cvr-social">₹350</div></div>
+          </div>
+
+          <div class="ai-insight-box" style="margin-bottom:16px">
+            <div class="ai-insight-title">🤖 AI Insight</div>
+            <div class="ai-insight-text" id="ai-insight-text">Your zone (Velachery) has a <strong>73% historical disruption rate</strong> in March–June. The model has pre-charged ₹8 extra this week based on IMD's 5-day forecast showing 65% probability of heavy rain. Expected ROI: 11× if triggered.</div>
+          </div>
+
+          <div style="font-size:12px;font-weight:700;color:var(--ink4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Plan Comparison</div>
+          <table class="comparison-table">
+            <tr><th>Plan</th><th>Weekly Premium</th><th>Max Payout</th><th>ROI if triggered</th></tr>
+            <tr><td>Basic</td><td>₹29</td><td>₹350</td><td>12.1×</td></tr>
+            <tr class="highlighted-row"><td>Standard ← current</td><td>₹62</td><td>₹700</td><td>11.3×</td></tr>
+            <tr><td>Pro</td><td>₹79</td><td>₹1,400</td><td>17.7×</td></tr>
+          </table>
+
+          <div style="display:flex;gap:10px;margin-top:18px">
+            <button class="btn btn-orange btn-full" onclick="show('policy');polTab(document.querySelectorAll('.pol-tab')[2],'pol-renew')">Apply This Premium →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CLAIMS MANAGEMENT ===== -->
+<div id="screen-claims" class="screen">
+  <div class="claims-wrap">
+    <div style="margin-bottom:20px">
+      <div class="page-eyebrow">Claims Management</div>
+      <h2 class="page-h2">Your Claims History</h2>
+      <p class="page-sub" style="margin-bottom:0">All claims are auto-initiated by the parametric engine. Zero manual filing.</p>
+    </div>
+
+    <div class="claims-top-stats">
+      <div class="c-stat"><div class="c-stat-label">Total Claims</div><div class="c-stat-val">6</div><div class="c-stat-sub">Since Mar 2024</div></div>
+      <div class="c-stat"><div class="c-stat-label">Total Paid Out</div><div class="c-stat-val" style="color:var(--green)">₹2,340</div><div class="c-stat-sub">Zero rejected</div></div>
+      <div class="c-stat"><div class="c-stat-label">Avg Payout Time</div><div class="c-stat-val">3.8 min</div><div class="c-stat-sub">UPI instant transfer</div></div>
+      <div class="c-stat"><div class="c-stat-label">Fraud Score (avg)</div><div class="c-stat-val" style="color:var(--green)">19/100</div><div class="c-stat-sub">Very low risk</div></div>
+    </div>
+
+    <div class="claims-layout">
+      <!-- Claims List -->
+      <div>
+        <div class="claims-list">
+          <div class="claims-list-header">
+            <div class="claims-list-title">All Claims</div>
+            <div class="claim-filter-row">
+              <button class="claim-filter-btn active" onclick="filterClaims(this,'all')">All</button>
+              <button class="claim-filter-btn" onclick="filterClaims(this,'paid')">Paid</button>
+              <button class="claim-filter-btn" onclick="filterClaims(this,'processing')">Processing</button>
+            </div>
+          </div>
+          <div id="claims-list-body">
+            <div class="claim-item selected" data-status="paid" onclick="selectClaim(this,0)">
+              <div class="claim-type-icon" style="background:var(--blue-bg)">🌧️</div>
+              <div class="claim-info">
+                <div class="claim-id-row"><span class="claim-id">CLM-0041</span><span class="claim-status-pill csp-paid">Paid</span></div>
+                <div class="claim-event">Monsoon Blackout — Cyclone Michaung</div>
+                <div class="claim-meta">Nov 4, 2024 · DRS 94 · Zone GG-CHN-0042</div>
+              </div>
+              <div class="claim-amount">₹960</div>
+            </div>
+            <div class="claim-item" data-status="paid" onclick="selectClaim(this,1)">
+              <div class="claim-type-icon" style="background:#f0e8f8">☁️</div>
+              <div class="claim-info">
+                <div class="claim-id-row"><span class="claim-id">CLM-0039</span><span class="claim-status-pill csp-paid">Paid</span></div>
+                <div class="claim-event">Toxic Air Day — AQI 340</div>
+                <div class="claim-meta">Oct 28, 2024 · 6 hrs above threshold</div>
+              </div>
+              <div class="claim-amount">₹490</div>
+            </div>
+            <div class="claim-item" data-status="paid" onclick="selectClaim(this,2)">
+              <div class="claim-type-icon" style="background:var(--blue-bg)">🌧️</div>
+              <div class="claim-info">
+                <div class="claim-id-row"><span class="claim-id">CLM-0036</span><span class="claim-status-pill csp-paid">Paid</span></div>
+                <div class="claim-event">Heavy Rainfall — 58mm in 6hrs</div>
+                <div class="claim-meta">Oct 15, 2024 · T-01 trigger</div>
+              </div>
+              <div class="claim-amount">₹420</div>
+            </div>
+            <div class="claim-item" data-status="paid" onclick="selectClaim(this,3)">
+              <div class="claim-type-icon" style="background:var(--orange-bg)">🔥</div>
+              <div class="claim-info">
+                <div class="claim-id-row"><span class="claim-id">CLM-0028</span><span class="claim-status-pill csp-paid">Paid</span></div>
+                <div class="claim-event">Heat Lockout — 44°C, IMD Red</div>
+                <div class="claim-meta">May 22, 2024 · T-02 trigger</div>
+              </div>
+              <div class="claim-amount">₹350</div>
+            </div>
+            <div class="claim-item" data-status="paid" onclick="selectClaim(this,4)">
+              <div class="claim-type-icon" style="background:var(--amber-bg)">🚫</div>
+              <div class="claim-info">
+                <div class="claim-id-row"><span class="claim-id">CLM-0022</span><span class="claim-status-pill csp-paid">Paid</span></div>
+                <div class="claim-event">Zone Lockdown — Local Strike</div>
+                <div class="claim-meta">Apr 10, 2024 · 4 hrs · T-05</div>
+              </div>
+              <div class="claim-amount">₹120</div>
+            </div>
+            <div class="claim-item" data-status="processing" onclick="selectClaim(this,5)">
+              <div class="claim-type-icon" style="background:var(--blue-bg)">🌊</div>
+              <div class="claim-info">
+                <div class="claim-id-row"><span class="claim-id">CLM-0044</span><span class="claim-status-pill csp-processing">Processing</span></div>
+                <div class="claim-event">Flood Alert — IMD Red Zone</div>
+                <div class="claim-meta">Mar 25, 2026 · Payout in ~2 min</div>
+              </div>
+              <div class="claim-amount" style="color:var(--amber)">₹700</div>
+            </div>
+          </div>
+          <div style="padding:14px 20px">
+            <button class="new-claim-btn" onclick="showPolToast('Auto-claim system active','Parametric triggers file claims automatically — no action needed')">+ Claims are filed automatically by HIE engine</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Claim Detail Panel -->
+      <div class="claim-detail" id="claim-detail-panel">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="t-icon">💸</div>
+  <div><div class="toast-title" id="t-title">Payout sent!</div><div class="toast-sub" id="t-sub">Velachery, Chennai · UPI transfer</div><div class="toast-amount" id="t-amount">₹480</div></div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  const navIds=['onboarding','dashboard','policy','premium','claims','simulate','admin'];
+  document.querySelectorAll('.nav-link').forEach((l,i)=>{
+    l.classList.toggle('active',navIds[i]===id);
+  });
+  if(id==='admin'){buildHeatmap();setAdminDate();}
+  if(id==='dashboard')buildForecast();
+  if(id==='claims'){if(typeof renderClaimDetail==='function')renderClaimDetail(0);}
+  if(id==='premium'){if(typeof recalcPremium==='function')recalcPremium();}
+}
+
+let step=1;
+function goStep(n){
+  document.getElementById('ws'+step).classList.remove('active');
+  step=n;
+  document.getElementById('ws'+step).classList.add('active');
+  for(let i=1;i<=5;i++) document.getElementById('sp'+i).className='step-pip'+(i<=step?' active':'');
+}
+function otpMove(el,idx){const b=document.querySelectorAll('.otp-box');if(el.value&&idx<3)b[idx+1].focus();}
+function pickPlatform(el){document.querySelectorAll('.platform-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');}
+function pickPlan(el){document.querySelectorAll('.plan-row').forEach(r=>r.classList.remove('selected'));el.classList.add('selected');}
+
+function buildForecast(){
+  const data=[{d:'Mon',v:18,c:'safe'},{d:'Tue',v:42,c:'warn'},{d:'Wed',v:74,c:'danger'},{d:'Thu',v:81,c:'danger'},{d:'Fri',v:45,c:'warn'},{d:'Sat',v:22,c:'safe'},{d:'Sun',v:14,c:'safe'}];
+  const cont=document.getElementById('forecast-bars');
+  if(!cont)return;
+  cont.innerHTML=data.map(d=>`<div class="f-bar-wrap"><div class="f-bar ${d.c}" style="height:${d.v}%"></div><div class="f-day">${d.d}</div></div>`).join('');
+}
+
+function calcDRS(r,a,t,w){
+  let s=0;
+  s+=Math.min(50,(r/50)*50);
+  s+=Math.min(25,Math.max(0,(a-150)/150*25));
+  s+=Math.min(15,Math.max(0,(t-38)/7*15));
+  s+=Math.min(10,(w/80)*10);
+  return Math.min(100,Math.round(s));
+}
+
+let pipeRunning=false;
+function simUpdate(){
+  const r=+document.getElementById('sl-rain').value, a=+document.getElementById('sl-aqi').value, t=+document.getElementById('sl-temp').value, w=+document.getElementById('sl-wind').value;
+  document.getElementById('sv-rain').textContent=r+' mm/hr';
+  document.getElementById('sv-aqi').textContent=a;
+  document.getElementById('sv-temp').textContent=t+'°C';
+  document.getElementById('sv-wind').textContent=w+' km/h';
+  const drs=calcDRS(r,a,t,w);
+  const nEl=document.getElementById('sim-drs-num'), sEl=document.getElementById('sim-drs-status');
+  nEl.textContent=drs;
+  if(drs<70){
+    nEl.style.color=drs<40?'var(--green)':'var(--amber)';
+    sEl.style.cssText='background:var(--green-bg);color:var(--green);border:1px solid #b8ddc8';
+    sEl.textContent='✅ No payout triggered';
+  } else if(drs<90){
+    nEl.style.color='var(--amber)';
+    sEl.style.cssText='background:var(--amber-bg);color:var(--amber);border:1px solid #e8d080';
+    sEl.textContent='⚠️ Pipeline starting...';
+    if(!pipeRunning)runPipeline(r,a,t,drs);
+  } else {
+    nEl.style.color='var(--red)';
+    sEl.style.cssText='background:var(--red-bg);color:var(--red);border:1px solid #f0b0a8';
+    sEl.textContent='🚨 Auto-payout triggered!';
+    if(!pipeRunning)runPipeline(r,a,t,drs);
+  }
+}
+
+function runPipeline(r,a,t,drs){
+  pipeRunning=true;
+  const pipes=['pi1','pi2','pi3','pi4','pi5','pi6'];
+  const arrs=['pa1','pa2','pa3','pa4','pa5'];
+  const logs=[
+    '> HIE scan complete. DRS threshold exceeded. Checking worker eligibility in zone GG-CHN-0042...',
+    '> DRS: '+drs+' (>70). Worker Kumar active in zone last 24hrs. Proceeding to TrustGPS...',
+    '> TrustGPS: cell towers ✓  motion ✓  history ✓  platform telemetry ✓  beacons ✓ — Score: 94',
+    '> TruthNet fraud analysis: Score 22/100 — ✅ auto-approve (threshold: 50)',
+    '> Razorpay API triggered. UPI transfer queued. Estimated delivery: ~90 seconds...',
+    '> WhatsApp notification sent. Pipeline complete ✅ Zero claim forms. Total time: ~4 minutes.'
+  ];
+  const payout=r>50?'₹700':a>300?'₹490':t>43?'₹420':'₹350';
+  pipes.forEach(p=>document.getElementById(p).className='pipe-icon');
+  arrs.forEach(a=>document.getElementById(a).className='pipe-arrow');
+  document.getElementById('pipe-status-label').textContent='Running...';
+  document.getElementById('pipe-log').textContent='> Event detected. Initializing payout pipeline...';
+  pipes.forEach((p,i)=>{
+    setTimeout(()=>{
+      if(i>0){document.getElementById(pipes[i-1]).className='pipe-icon done';document.getElementById(arrs[i-1]).className='pipe-arrow active';}
+      document.getElementById(p).className='pipe-icon running';
+      document.getElementById('pipe-log').textContent=logs[i];
+      if(i===pipes.length-1){
+        setTimeout(()=>{
+          document.getElementById(p).className='pipe-icon done';
+          document.getElementById('pipe-status-label').textContent='Complete ✅ — '+payout+' sent';
+          document.getElementById('pipe-log').textContent='> ✅ '+payout+' transferred via UPI to Kumar. Notification sent. No claim form filled.';
+          showWA(r,a,t,payout);
+          showToast(r,a,t,payout);
+          setTimeout(()=>{pipeRunning=false;},3000);
+        },700);
+      }
+    },i*900);
+  });
+}
+
+function showWA(r,a,t,payout){
+  const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('wa-online').textContent=now+' · Just now';
+  let msg='';
+  if(r>50)msg=`🛡️ GigGuard: Heavy rain detected in your zone (Velachery, Chennai).\n\n<span class="wa-amount">${payout}</span> has been transferred to your UPI. Stay home, stay safe.\n\n— Team GigGuard`;
+  else if(a>300)msg=`🛡️ GigGuard: AQI alert — ${a} in your zone.\n\n<span class="wa-amount">${payout}</span> transferred to your UPI. Avoid going out.\n\n— Team GigGuard`;
+  else if(t>43)msg=`🛡️ GigGuard: Heat advisory — ${t}°C in Velachery.\n\n<span class="wa-amount">${payout}</span> transferred to your UPI. Drink water.\n\n— Team GigGuard`;
+  else msg=`🛡️ GigGuard: Disruption in your zone.\n\n<span class="wa-amount">${payout}</span> transferred to your UPI.\n\n— Team GigGuard`;
+  document.getElementById('wa-bubble').innerHTML=msg.replace(/\n/g,'<br>')+'<div class="wa-tick">✓✓ '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+'</div>';
+}
+
+function fireTrig(type){
+  pipeRunning=false;
+  const map={rain:[72,142,34,18],aqi:[8,340,34,18],heat:[8,142,45,18],flood:[65,180,36,80]};
+  const v=map[type];
+  document.getElementById('sl-rain').value=v[0];
+  document.getElementById('sl-aqi').value=v[1];
+  document.getElementById('sl-temp').value=v[2];
+  document.getElementById('sl-wind').value=v[3];
+  simUpdate();
+}
+
+function showToast(r,a,t,payout){
+  const T=document.getElementById('toast');
+  const titles={r:'Monsoon payout triggered!',a:'Toxic air payout sent!',h:'Heat alert payout!',f:'Flood payout!'};
+  const key=r>50?'r':a>300?'a':t>43?'h':'f';
+  document.getElementById('t-title').textContent=titles[key];
+  document.getElementById('t-sub').textContent='Velachery, Chennai · UPI transfer';
+  document.getElementById('t-amount').textContent=payout;
+  T.classList.add('show');
+  setTimeout(()=>T.classList.remove('show'),4000);
+}
+
+function setAdminDate(){
+  document.getElementById('admin-date').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+' · '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+
+function buildHeatmap(){
+  const g=document.getElementById('hm-grid');
+  if(!g||g.children.length>0)return;
+  for(let i=0;i<154;i++){
+    const c=document.createElement('div');
+    c.className='hm-cell';
+    const rv=Math.random();
+    let bg;
+    if(rv<0.62)bg=`rgba(180,165,140,${0.25+rv*0.35})`;
+    else if(rv<0.85)bg=`rgba(210,185,70,${0.3+rv*0.25})`;
+    else bg=`rgba(210,95,85,${0.35+rv*0.3})`;
+    c.style.background=bg;
+    const drs=rv<0.62?Math.floor(rv*50):rv<0.85?Math.floor(30+rv*40):Math.floor(70+rv*30);
+    c.title=`Zone ${i+1} · DRS ${drs}`;
+    g.appendChild(c);
+  }
+}
+
+function resolveFraud(btn,approve){
+  const row=btn.closest('.fraud-row');
+  row.style.transition='all 0.3s';row.style.opacity='0';row.style.maxHeight='0';row.style.padding='0';row.style.overflow='hidden';
+  setTimeout(()=>row.remove(),300);
+  const rem=document.querySelectorAll('.fraud-row').length-1;
+  document.getElementById('fq-count').textContent=Math.max(0,rem)+' pending';
+  const T=document.getElementById('toast');
+  document.getElementById('t-icon').textContent=approve?'✅':'🚫';
+  document.getElementById('t-title').textContent=approve?'Payout approved':'Payout rejected';
+  document.getElementById('t-sub').textContent=approve?'Payment will be released':'Account flagged for review';
+  document.getElementById('t-amount').textContent=approve?'₹480':'Blocked';
+  document.getElementById('t-amount').style.color=approve?'#6ddc9a':'#f08080';
+  T.classList.add('show');setTimeout(()=>T.classList.remove('show'),3000);
+}
+
+setInterval(()=>{
+  const v=20+Math.round(Math.random()*12);
+  const el=document.getElementById('db-drs-num'),bar=document.getElementById('db-drs-bar');
+  if(el){el.textContent=v;bar.style.width=v+'%';}
+},6000);
+
+// ===== PHASE 2 JS =====
+
+// Policy tabs
+function polTab(btn, contentId) {
+  document.querySelectorAll('.pol-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pol-tab-content').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(contentId).classList.add('active');
+}
+
+// Modal helpers
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function closeModalOutside(e,id){if(e.target===document.getElementById(id))closeModal(id);}
+function toggleSw(el){el.classList.toggle('on');updateModalPremium();}
+function updateModalPremium(){
+  const ons=document.querySelectorAll('#mod-modify .toggle-sw.on').length;
+  const base=49, extra=Math.max(0,(ons-3)*4);
+  document.querySelector('.premium-preview-num').textContent='₹'+(base+extra);
+}
+
+// Policy toast
+function showPolToast(title, sub){
+  const T=document.getElementById('toast');
+  document.getElementById('t-icon').textContent='✅';
+  document.getElementById('t-title').textContent=title;
+  document.getElementById('t-sub').textContent=sub;
+  document.getElementById('t-amount').textContent='';
+  document.getElementById('t-amount').style.color='#6ddc9a';
+  T.classList.add('show');setTimeout(()=>T.classList.remove('show'),3000);
+}
+
+// Premium Calculator
+function toggleRFC(el){el.classList.toggle('selected');recalcPremium();}
+function recalcPremium(){
+  const base=parseInt(document.getElementById('prem-plan-sel').value)||49;
+  const earnings=parseInt(document.getElementById('earn-range').value)||3500;
+  const zoneEl=document.querySelector('.calc-select[onchange="recalcPremium()"] ~ .calc-select, #screen-premium .calc-select:nth-child(2)');
+  const zoneOptions={
+    'chennai-velachery':18,'mumbai-dharavi':16,'blore-koramangala':8,'delhi-noida':10,'hyderabad-htech':3
+  };
+  const selZone=document.querySelectorAll('#screen-premium .calc-select')[1];
+  const zoneKey=selZone?selZone.value:'chennai-velachery';
+  let zoneAdj=zoneOptions[zoneKey]||10;
+  let rfcAdj=0;
+  document.querySelectorAll('.risk-factor-chip.selected').forEach(chip=>{
+    rfcAdj+=parseInt(chip.dataset.adj)||0;
+  });
+  const total=Math.max(15,base+zoneAdj+rfcAdj);
+  const maxPay={29:350,49:700,79:1400}[base]||700;
+  document.getElementById('pr-amount').textContent='₹'+total;
+  document.getElementById('pr-base').textContent='₹'+base;
+  document.getElementById('pr-zone').textContent=(zoneAdj>=0?'+':'')+'₹'+zoneAdj;
+  const disc=rfcAdj<0?rfcAdj:0;
+  const adds=rfcAdj>0?rfcAdj:0;
+  document.getElementById('pr-loyalty').textContent=(disc<=0?disc>=0?'₹0':'−₹'+Math.abs(disc):'');
+  if(document.getElementById('pr-loyalty'))document.getElementById('pr-loyalty').textContent=(disc<0?'−₹'+Math.abs(disc):(adds>0?'+₹'+adds:'₹0'));
+  document.getElementById('pr-monthly').textContent='₹'+(total*4);
+  document.getElementById('pr-pct').textContent=(total/earnings*100).toFixed(1)+'%';
+  const payScale=maxPay/700;
+  document.getElementById('cvr-rain').textContent='₹'+Math.round(700*payScale);
+  document.getElementById('cvr-aqi').textContent='₹'+Math.round(490*payScale);
+  document.getElementById('cvr-heat').textContent='₹'+Math.round(420*payScale);
+  document.getElementById('cvr-flood').textContent='₹'+Math.round(700*payScale);
+  document.getElementById('cvr-social').textContent='₹'+Math.round(350*payScale);
+}
+
+// Claims
+const claimData=[
+  {id:'CLM-0041',event:'Monsoon Blackout — Cyclone Michaung',icon:'🌧️',iconBg:'var(--blue-bg)',status:'Paid',statusClass:'csp-paid',date:'Nov 4, 2024',zone:'Velachery, Chennai',drs:94,fraud:14,payout:'₹960',upi:'kumar@oksbi',duration:'52 hrs offline',triggerType:'T-01 Heavy Rain',pipeTime:'4 min 12 sec',notes:'IMD Cyclone Warning issued 18hrs prior. Cell tower + GPS confirmed worker in zone. Platform telemetry showed zero deliveries for 52hrs.'},
+  {id:'CLM-0039',event:'Toxic Air Day — AQI 340',icon:'☁️',iconBg:'#f0e8f8',status:'Paid',statusClass:'csp-paid',date:'Oct 28, 2024',zone:'Velachery, Chennai',drs:81,fraud:22,payout:'₹490',upi:'kumar@oksbi',duration:'6 hrs above AQI 300',triggerType:'T-02 AQI Alert',pipeTime:'3 min 01 sec',notes:'CPCB AQI feed confirmed 340 for 6+ hrs. Worker GPS in zone. Platform deliveries dropped to zero.'},
+  {id:'CLM-0036',event:'Heavy Rainfall — 58mm in 6hrs',icon:'🌧️',iconBg:'var(--blue-bg)',status:'Paid',statusClass:'csp-paid',date:'Oct 15, 2024',zone:'Velachery, Chennai',drs:77,fraud:18,payout:'₹420',upi:'kumar@oksbi',duration:'6 hrs rainfall event',triggerType:'T-01 Heavy Rain',pipeTime:'5 min 08 sec',notes:'IMD rain gauge + Open-Meteo API confirmed 58mm threshold. Worker in delivery zone.'},
+  {id:'CLM-0028',event:'Heat Lockout — 44°C, IMD Red Alert',icon:'🔥',iconBg:'var(--orange-bg)',status:'Paid',statusClass:'csp-paid',date:'May 22, 2024',zone:'Velachery, Chennai',drs:72,fraud:9,payout:'₹350',upi:'kumar@oksbi',duration:'8 hrs heat advisory',triggerType:'T-03 Extreme Heat',pipeTime:'2 min 50 sec',notes:'IMD Red Alert for Tamil Nadu. Temperature API confirmed 44°C in zone. Automatic payout triggered.'},
+  {id:'CLM-0022',event:'Zone Lockdown — Local Strike',icon:'🚫',iconBg:'var(--amber-bg)',status:'Paid',statusClass:'csp-paid',date:'Apr 10, 2024',zone:'Velachery, Chennai',drs:70,fraud:31,payout:'₹120',upi:'kumar@oksbi',duration:'4 hrs disruption',triggerType:'T-05 Social Disruption',pipeTime:'4 min 30 sec',notes:'Traffic API + platform suspension confirmed zone closure. Minor fraud score (31) due to brief GPS gap — approved after manual review.'},
+  {id:'CLM-0044',event:'Flood Alert — IMD Red Zone',icon:'🌊',iconBg:'var(--blue-bg)',status:'Processing',statusClass:'csp-processing',date:'Mar 25, 2026',zone:'Velachery, Chennai',drs:88,fraud:12,payout:'₹700',upi:'kumar@oksbi',duration:'Ongoing — 4 hrs so far',triggerType:'T-04 Flood Alert',pipeTime:'In progress...',notes:'IMD issued Red Alert. GPS confirmed worker in flood-affected zone. TrustGPS 94. Auto-approval in progress — payout queued.'}
+];
+
+function selectClaim(el, idx){
+  document.querySelectorAll('.claim-item').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  renderClaimDetail(idx);
+}
+
+function renderClaimDetail(idx){
+  const c=claimData[idx];
+  if(!c)return;
+  const fraudColor=c.fraud<30?'var(--green)':c.fraud<60?'var(--amber)':'var(--red)';
+  const panel=document.getElementById('claim-detail-panel');
+  const isProcessing=c.status==='Processing';
+  panel.innerHTML=`
+    <div class="cdp-header">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:24px;margin-bottom:6px">${c.icon}</div>
+          <div class="cdp-event-name">${c.event}</div>
+          <div class="cdp-id">${c.id} · ${c.date} · ${c.zone}</div>
+        </div>
+        <span class="claim-status-pill ${c.statusClass}" style="font-size:12px;padding:5px 14px">${c.status}</span>
+      </div>
+    </div>
+    <div class="cdp-body">
+      <div class="cdp-section">
+        <div class="cdp-section-title">Trigger Verification</div>
+        <div class="cdp-data-grid">
+          <div class="cdp-data-item"><div class="cdp-data-label">Trigger Type</div><div class="cdp-data-val">${c.triggerType}</div></div>
+          <div class="cdp-data-item"><div class="cdp-data-label">DRS Score</div><div class="cdp-data-val ${c.drs>=70?'alert':''}">${c.drs}/100</div></div>
+          <div class="cdp-data-item"><div class="cdp-data-label">Duration</div><div class="cdp-data-val">${c.duration}</div></div>
+          <div class="cdp-data-item"><div class="cdp-data-label">Pipeline Time</div><div class="cdp-data-val good">${c.pipeTime}</div></div>
+        </div>
+      </div>
+      <div class="cdp-section">
+        <div class="cdp-section-title">TruthNet Fraud Analysis</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:13px;color:var(--ink3)">Fraud Risk Score</span>
+          <span style="font-size:16px;font-weight:800;color:${fraudColor}">${c.fraud}/100 — ${c.fraud<30?'Auto-Approved ✅':c.fraud<60?'Low Risk ✓':'Manual Review'}</span>
+        </div>
+        <div class="fraud-score-bar"><div class="fsb-fill" style="width:${c.fraud}%;background:${fraudColor}"></div></div>
+        <div style="font-size:12px;color:var(--ink3);margin-top:8px">${c.notes}</div>
+      </div>
+      <div class="cdp-section">
+        <div class="cdp-section-title">Claim Timeline</div>
+        <div class="timeline-steps">
+          <div class="ts-step"><div class="ts-dot done">✓</div><div class="ts-content"><div class="ts-label">HIE Event Detected</div><div class="ts-time">DRS threshold exceeded — ${c.triggerType}</div></div></div>
+          <div class="ts-step"><div class="ts-dot done">✓</div><div class="ts-content"><div class="ts-label">Worker Eligibility Verified</div><div class="ts-time">TrustGPS confirmed · GPS in zone · Platform active</div></div></div>
+          <div class="ts-step"><div class="ts-dot done">✓</div><div class="ts-content"><div class="ts-label">TruthNet Fraud Check</div><div class="ts-time">Score ${c.fraud}/100 · ${c.fraud<50?'Auto-approved':'Reviewed'}</div></div></div>
+          <div class="ts-step"><div class="ts-dot ${isProcessing?'now':'done'}">${isProcessing?'●':'✓'}</div><div class="ts-content"><div class="ts-label">Razorpay Payout Queued</div><div class="ts-time">${isProcessing?'In progress — UPI transfer ~90 sec':'UPI transfer initiated'}</div></div></div>
+          <div class="ts-step"><div class="ts-dot ${isProcessing?'pending':'done'}">${isProcessing?'':'✓'}</div><div class="ts-content"><div class="ts-label">Transfer Complete</div><div class="ts-time">${isProcessing?'Pending...':c.pipeTime+' · WhatsApp notified'}</div></div></div>
+        </div>
+      </div>
+      ${isProcessing?`<div style="background:var(--amber-bg);border:1px solid #e8d080;border-radius:12px;padding:14px 16px;font-size:13px;color:var(--amber);font-weight:600;margin-bottom:16px">⏳ Payout processing — Razorpay UPI transfer in progress. Expected in ~2 minutes.</div>`:`
+      <div class="cdp-payout-box">
+        <div><div class="cdp-payout-amount">${c.payout}</div><div class="cdp-payout-label">Transferred to UPI · ${c.pipeTime}</div><div class="cdp-payout-upi">${c.upi}</div></div>
+        <div style="font-size:36px">💸</div>
+      </div>`}
+    </div>
+  `;
+}
+
+function filterClaims(btn, filter){
+  document.querySelectorAll('.claim-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.claim-item').forEach(item=>{
+    const show=filter==='all'||item.dataset.status===filter;
+    item.style.display=show?'flex':'none';
+  });
+}
+
+// Re-init dashboard on load
+buildForecast();
+renderClaimDetail(0);
+recalcPremium();
+
+// ═══════════════════════════════════════════════════
+//  PHASE 2 — BACKEND API INTEGRATION
+// ═══════════════════════════════════════════════════
+const API_BASE = 'http://localhost:3001/api';
+let authToken = localStorage.getItem('gg_token');
+let currentWorker = null;
+let selectedPlatformVal = 'swiggy';
+let selectedPlanVal = 'standard';
+let tempToken = null;
+
+// ── API helper ──────────────────────────────────────
+async function api(path, method = 'GET', body = null) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (authToken) opts.headers['Authorization'] = 'Bearer ' + authToken;
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const res = await fetch(API_BASE + path, opts);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'API error');
+    return data;
+  } catch (err) {
+    console.warn('API offline — using demo mode:', err.message);
+    return null;
+  }
+}
+
+// ── OTP Demo Banner (injected below phone input) ────
+function injectOTPBanner() {
+  if (document.getElementById('gg-otp-banner')) return;
+  const ws2 = document.getElementById('ws2');
+  if (!ws2) return;
+  const banner = document.createElement('div');
+  banner.id = 'gg-otp-banner';
+  banner.style.cssText = 'display:none;background:#fef8e8;border:1px solid #e8d080;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#c47d0a;align-items:center;gap:10px;';
+  banner.innerHTML = '🔑 Demo OTP: <span id="gg-otp-code" style="font-family:DM Mono,monospace;font-size:20px;font-weight:800;color:#1a1208;letter-spacing:4px">----</span>';
+  ws2.insertBefore(banner, ws2.querySelector('.field-block'));
+}
+
+// ── Hook into existing goStep / OTP buttons ─────────
+const _origGoStep = window.goStep;
+window.goStep = function(n) {
+  // When moving to step 2, actually call real OTP API
+  if (n === 2) {
+    const phone = document.getElementById('phone')?.value?.trim();
+    if (!phone) { alert('Please enter your phone number first'); return; }
+    injectOTPBanner();
+    api('/auth/send-otp', 'POST', { phone }).then(result => {
+      if (result?.demo_otp) {
+        document.getElementById('gg-otp-banner').style.display = 'flex';
+        document.getElementById('gg-otp-code').textContent = result.demo_otp;
+      }
+    });
+    _origGoStep(n);
+    return;
+  }
+  // When moving to step 5 (final), register the worker
+  if (n === 5) {
+    handleWorkerRegistration();
+    return;
+  }
+  _origGoStep(n);
+};
+
+// ── OTP verify (hooked into existing Verify → button) ──
+document.addEventListener('DOMContentLoaded', () => {
+  // Find "Verify →" button in ws2
+  const ws2 = document.getElementById('ws2');
+  if (ws2) {
+    const verifyBtn = [...ws2.querySelectorAll('button')].find(b => b.textContent.includes('Verify'));
+    if (verifyBtn) {
+      verifyBtn.onclick = async function() {
+        const phone = document.getElementById('phone')?.value?.trim();
+        const otp = [...document.querySelectorAll('.otp-box')].map(b => b.value).join('');
+        if (otp.length < 4) { alert('Enter all 4 OTP digits'); return; }
+
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = '⏳ Verifying…';
+
+        const result = await api('/auth/verify-otp', 'POST', { phone, otp });
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = 'Verify →';
+
+        if (result) {
+          if (!result.isNewUser) {
+            // Existing user — straight to dashboard
+            authToken = result.token;
+            localStorage.setItem('gg_token', authToken);
+            currentWorker = result.worker;
+            applyWorkerToUI();
+            show('dashboard');
+          } else {
+            tempToken = result.tempToken;
+            _origGoStep(3);
+          }
+        } else {
+          // Demo fallback — still proceed
+          tempToken = 'demo_token';
+          _origGoStep(3);
+        }
+      };
+    }
+  }
+
+  // Hook platform buttons to track selected value
+  document.querySelectorAll('.platform-btn').forEach(btn => {
+    const name = btn.querySelector('.pb-name')?.textContent?.toLowerCase() || 'swiggy';
+    btn.addEventListener('click', () => { selectedPlatformVal = name; });
+  });
+
+  // Hook plan rows to track selected plan
+  document.querySelectorAll('.plan-row').forEach(row => {
+    const name = row.querySelector('.plan-name')?.textContent?.toLowerCase() || 'standard';
+    row.addEventListener('click', () => { selectedPlanVal = name; });
+  });
+
+  // Auto-login if token exists
+  if (authToken) {
+    api('/workers/me').then(me => {
+      if (me) {
+        currentWorker = me;
+        applyWorkerToUI();
+        show('dashboard');
+      }
+    });
+  }
+});
+
+// ── Register worker via API ────────────────────────
+async function handleWorkerRegistration() {
+  const name = 'Worker_' + Date.now().toString(36).toUpperCase();
+  const planMap = { basic:{p:29,m:350}, standard:{p:62,m:700}, pro:{p:79,m:1400} };
+  const cfg = planMap[selectedPlanVal] || planMap.standard;
+
+  const result = await api('/workers/register', 'POST', {
+    tempToken: tempToken || 'demo',
+    name, platform: selectedPlatformVal,
+    plan: selectedPlanVal,
+    upi_id: name.toLowerCase() + '@upi',
+    zone_name: 'Velachery, Chennai'
+  });
+
+  if (result) {
+    authToken = result.token;
+    localStorage.setItem('gg_token', authToken);
+    currentWorker = result.worker;
+    applyWorkerToUI();
+  }
+  _origGoStep(5);
+}
+
+// ── Apply real worker data into existing UI ────────
+function applyWorkerToUI() {
+  if (!currentWorker) return;
+  // Dashboard greeting
+  const greetEl = document.querySelector('.dash-greeting span');
+  if (greetEl) greetEl.textContent = currentWorker.name || 'Kumar';
+  const subEl = document.querySelector('.dash-greeting-sub');
+  if (subEl) subEl.textContent = (currentWorker.platform || 'Swiggy') + ' · ' + (currentWorker.zone_name || 'Velachery, Chennai') + ' · ' + (currentWorker.plan || 'Standard') + ' Plan active';
+  const premEl = document.querySelector('.dash-prem-val');
+  if (premEl) premEl.textContent = '₹' + (currentWorker.weekly_premium || 62);
+  const premSubEl = document.querySelector('.dash-prem-sub');
+  if (premSubEl) premSubEl.textContent = 'debited Mon · max payout ₹' + (currentWorker.max_payout || 700);
+
+  // Show logout button in nav
+  addLogoutToNav();
+  // Load payout history from DB
+  loadPayoutsFromAPI();
+}
+
+// ── Load real payout history ───────────────────────
+async function loadPayoutsFromAPI() {
+  const data = await api('/payouts/me?limit=5');
+  if (!data?.payouts?.length) return;
+
+  const icons = { rain:'🌧️', aqi:'☁️', heat:'🔥', flood:'🌊', general:'💰' };
+  const names = { rain:'Heavy Rainfall Event', aqi:'Toxic Air — AQI Spike', heat:'Heat Advisory', flood:'Flood Alert', general:'Disruption Event' };
+
+  // Find payout list container in dashboard
+  const container = document.querySelector('.history-card') || document.querySelector('.dash-grid-bot');
+  if (!container) return;
+
+  const totalEl = container.querySelector('.history-total');
+  if (totalEl && data.summary?.total) {
+    totalEl.textContent = '₹' + Number(data.summary.total).toLocaleString('en-IN') + ' received';
+  }
+
+  const rows = container.querySelectorAll('.payout-row');
+  data.payouts.forEach((p, i) => {
+    if (!rows[i]) return;
+    const nameEl = rows[i].querySelector('.payout-event-name');
+    const dateEl = rows[i].querySelector('.payout-date');
+    const amtEl  = rows[i].querySelector('.payout-amt');
+    const timeEl = rows[i].querySelector('.payout-time');
+    if (nameEl) nameEl.textContent = names[p.trigger_type] || 'Disruption Event';
+    if (dateEl) dateEl.textContent = new Date(p.triggered_at).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) + ' · DRS ' + p.drs_at_trigger;
+    if (amtEl)  amtEl.textContent  = '₹' + p.amount;
+    if (timeEl) timeEl.textContent = p.transfer_time_sec ? Math.round(p.transfer_time_sec/60) + ' min transfer' : 'instant';
+  });
+}
+
+// ── Save simulation to DB ──────────────────────────
+const _origRunPipeline = window.runPipeline;
+if (typeof runPipeline === 'function') {
+  window.runPipeline = async function(r, a, t, drs) {
+    if (authToken) {
+      const w = document.getElementById('sl-wind');
+      api('/payouts/simulate', 'POST', {
+        rainfall_mm: r, aqi: a, temperature_c: t,
+        wind_speed_kmh: w ? +w.value : 15
+      }).catch(() => {});
+    }
+    runPipeline(r, a, t, drs);
+  };
+}
+
+// ── Logout button ──────────────────────────────────
+function addLogoutToNav() {
+  if (document.getElementById('gg-logout')) return;
+  const navRight = document.querySelector('.nav-right');
+  if (!navRight) return;
+  const btn = document.createElement('button');
+  btn.id = 'gg-logout';
+  btn.textContent = '← Logout';
+  btn.style.cssText = 'padding:6px 14px;background:#fdecea;color:#c0392b;border:1px solid #f0b0a8;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;';
+  btn.onclick = () => {
+    authToken = null; currentWorker = null;
+    localStorage.removeItem('gg_token');
+    btn.remove();
+    show('onboarding');
+  };
+  navRight.appendChild(btn);
+}
+
+// ── Admin stats from DB ────────────────────────────
+const _origShow = window.show;
+window.show = function(id) {
+  _origShow(id);
+  if (id === 'admin' && authToken) loadAdminStatsFromAPI();
+};
+
+async function loadAdminStatsFromAPI() {
+  const stats = await api('/admin/stats');
+  if (!stats) return;
+  const statVals = document.querySelectorAll('.a-stat-val');
+  if (statVals[0]) statVals[0].textContent = Number(stats.workers?.active || 0).toLocaleString('en-IN');
+  if (statVals[1]) statVals[1].textContent = '₹' + Math.round((stats.payouts?.week_amount || 0)/100)/10 + 'k';
+  if (statVals[2]) statVals[2].textContent = '₹' + Math.round((stats.premium_pool || 0)/100)/10 + 'k';
+  if (statVals[3]) statVals[3].textContent = stats.fraud?.total || '0';
+}
+</script>
+</body>
+</html>

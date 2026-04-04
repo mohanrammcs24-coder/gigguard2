@@ -1,0 +1,55 @@
+{
+  "folders": [
+    { "name": "🛡 GigGuard", "path": "." }
+  ],
+  "settings": {
+    "editor.fontSize": 14,
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true,
+    "editor.wordWrap": "on",
+    "files.exclude": {
+      "node_modules": true,
+      ".env": false
+    },
+    "emmet.includeLanguages": { "javascript": "javascriptreact" }
+  },
+  "extensions": {
+    "recommendations": [
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "ritwickdey.LiveServer",
+      "PKief.material-icon-theme",
+      "formulahendry.auto-rename-tag"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "▶ Start GigGuard Backend",
+        "program": "${workspaceFolder}/backend/server.js",
+        "envFile": "${workspaceFolder}/backend/.env",
+        "console": "integratedTerminal",
+        "restart": true
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Install & Start Backend",
+        "type": "shell",
+        "command": "cd backend && npm install && node server.js",
+        "group": { "kind": "build", "isDefault": true },
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "panel": "new"
+        }
+      }
+    ]
+  }
+}
